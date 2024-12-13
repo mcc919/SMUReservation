@@ -12,7 +12,7 @@ export default function App() {
     const onChangeStudentId = (data) => { setStudentId(data); console.log(studentId)}
     const onChangeStudentPw = (data) => { setStudentPw(data); console.log(studentPw)}
 
-    const login = () => {
+    const auth = () => {
         fetch("https://smunity.co.kr/api/auth", {
             method: "POST",
             body: JSON.stringify({
@@ -48,7 +48,7 @@ export default function App() {
                 <FontAwesome5 name="lock" size={24} color="black" style={styles.loginIcon} />
                 <TextInput onChangeText={onChangeStudentPw} secureTextEntry>tset</TextInput>
             </View>
-            <Button title="로그인!!" color="#841584" onPress={login}></Button>
+            <Button title="로그인!!" color="#841584" onPress={auth}></Button>
             <View style={styles.loginError}>{ isError ? (<Text>아이디와 비밀번호가 일치하지 않습니다.</Text>) : null }
             </View>
         </View>
