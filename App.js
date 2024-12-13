@@ -39,19 +39,21 @@ export default function App() {
     }
 
     return (
-        <View style={styles.container}>
-            <View style={styles.loginBox}>
-                <FontAwesome5 name="user-alt" size={24} color="black" style={styles.loginIcon} />
-                <TextInput onChangeText={onChangeStudentId}>test</TextInput>
+        <NavigationContainer>
+            <View style={styles.container}>
+                <View style={styles.loginBox}>
+                    <FontAwesome5 name="user-alt" size={24} color="black" style={styles.loginIcon} />
+                    <TextInput onChangeText={onChangeStudentId}>test</TextInput>
+                </View>
+                <View style={styles.loginBox}>
+                    <FontAwesome5 name="lock" size={24} color="black" style={styles.loginIcon} />
+                    <TextInput onChangeText={onChangeStudentPw} secureTextEntry>tset</TextInput>
+                </View>
+                <Button title="로그인!!" color="#841584" onPress={auth}></Button>
+                <View style={styles.loginError}>{ isError ? (<Text>아이디와 비밀번호가 일치하지 않습니다.</Text>) : null }
+                </View>
             </View>
-            <View style={styles.loginBox}>
-                <FontAwesome5 name="lock" size={24} color="black" style={styles.loginIcon} />
-                <TextInput onChangeText={onChangeStudentPw} secureTextEntry>tset</TextInput>
-            </View>
-            <Button title="로그인!!" color="#841584" onPress={auth}></Button>
-            <View style={styles.loginError}>{ isError ? (<Text>아이디와 비밀번호가 일치하지 않습니다.</Text>) : null }
-            </View>
-        </View>
+        </NavigationContainer>
     );
 }
 
