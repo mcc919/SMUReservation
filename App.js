@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { TextInput, StyleSheet, View, Text, TouchableOpacity, Button} from "react-native";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { theme } from "./color.js"
-import {NavigationContainer} from '@react-navigation/native';
 import { createStaticNavigation, useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 //import { Button } from "@react-navigation/elements";
@@ -40,19 +39,17 @@ function LoginScreen() {
     const onChangeStudentPw = (data) => { setStudentPw(data); console.log(studentPw)}
 
     const auth = () => {
-        fetch("https://smunity.co.kr/api/auth", {
+        fetch("http://172.17.65.6:5000/login", {
             method: "POST",
-            body: JSON.stringify({
-                "username": studentId,
-                "password": studentPw
-            }),
+            body: `username=${username}&password=${password}`,
             headers: {
-                'Content-Type': 'application/json;charset=utf-8'
+                //'Content-Type': 'application/json;charset=utf-8' (smunity.co.kr/api에 직접 요청할 경우)
+                'Content-Type': 'application/x-www-form-urlencoded',
                 },
             })
             .then((response) => response.json())
             .then((result) => {        
-            console.log('dfdfdf');
+            console.log(result);
 
             if (result["is_auth"] === true) {
                 setIsError(false);
