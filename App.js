@@ -6,6 +6,9 @@ import { createStaticNavigation, useNavigation } from "@react-navigation/native"
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 //import { Button } from "@react-navigation/elements";
 
+import { API_URL } from '@env';
+
+
 const RootStack = createNativeStackNavigator({
     initialRouteName: 'Login',
     screenOptions: {
@@ -35,35 +38,50 @@ function LoginScreen() {
     const [studentPw, setStudentPw] = useState("");
     const [isError, setIsError] = useState(false);
     
-    const onChangeStudentId = (data) => { setStudentId(data); console.log(studentId)}
-    const onChangeStudentPw = (data) => { setStudentPw(data); console.log(studentPw)}
+    const onChangeStudentId = (data) => { setStudentId(data);}
+    const onChangeStudentPw = (data) => { setStudentPw(data);}
 
-    const auth = () => {
-        fetch("http://172.17.65.6:5000/login", {
+    const auth = async () => {
+        try {
+          const response = await fetch(API_URL, {
             method: "POST",
-            body: `username=${username}&password=${password}`,
             headers: {
-                //'Content-Type': 'application/json;charset=utf-8' (smunity.co.kr/api에 직접 요청할 경우)
-                'Content-Type': 'application/x-www-form-urlencoded',
-                },
-            })
-            .then((response) => response.json())
-            .then((result) => {        
-            console.log(result);
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `username=${studentId}&password=${studentPw}`,
+          });
+      
+          if (!response.ok) {
+            // HTTP 응답 상태 코드가 200-299 범위를 벗어나는 경우 처리
+            console.error('Server responded with an error:', response.status);
+            // 서버로부터 에러 코드를 받았을 경우 사용자에게 뭐라 할건지?
 
-            if (result["is_auth"] === true) {
-                setIsError(false);
-                console.log('login success');
-                // page 이동
-                navigation.navigate('Home');
-            } else {
-                setIsError(true);
-                setTimeout(() => {
-                    setIsError(false);
-                }, 3000);
-            }}
-        );
-    }
+            return;
+          }
+
+          const result = await response.json();     // response는 메타데이터만 포함하고 있음, json()하면 튀어나옴
+      
+          if (result.is_auth === true) {
+            setIsError(false);
+            console.log('Login successful:', result);
+            navigation.navigate('Home'); // 로그인 성공 시 페이지 이동
+          } else {
+            setIsError(true);
+            console.log('Authentication failed:', result);
+            setTimeout(() => {
+              setIsError(false);
+            }, 3000);
+          }
+        } catch (error) {
+          // 네트워크 에러 또는 다른 예외 상황 처리
+          console.error('Error during authentication:', error);
+          setIsError(true);
+          setTimeout(() => {
+            setIsError(false);
+          }, 3000);
+        }
+    };
+      
 
     return (
         <View style={styles.container}>
