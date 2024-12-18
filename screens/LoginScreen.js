@@ -37,7 +37,8 @@ export default function LoginScreen({ navigation, dispatch }) {
       }
 
       const result = await response.json();
-      console.log(result);  // FOR DEBUG
+      //console.log(result);  // FOR DEBUG
+
       if (result.is_auth) {
         await AsyncStorage.setItem(accessTokenKey, result.access_token);
         dispatch({ type: 'SIGN_IN', token: result.access_token });
