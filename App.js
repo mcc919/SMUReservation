@@ -99,7 +99,7 @@ function LoginScreen({ navigation, dispatch }) {
 function HomeScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to Home Screen!</Text>
+      <Text style={styles.title}>This is Home Screen.</Text>
     </View>
   );
 }
@@ -119,6 +119,7 @@ export default function App() {
           });
           if (!response.ok) {
             token = null;
+            await AsyncStorage.removeItem(accessTokenKey);  // 로컬에 저장된 token은 유효하지 않은 것이므로 삭제
           }
         }
       } catch (e) {
