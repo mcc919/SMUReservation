@@ -23,33 +23,33 @@ export default function LoginScreen({ navigation, dispatch }) {
   const [isLoading, setIsLoading] = useState(false);
 
   const signIn = async () => {
-    //setErrorMessage('');
     setIsLoading(true);     // 로딩 시작
     try {
+      console.log(API_URL);
       const response = await fetch(`${API_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `username=${username}&password=${password}`,
       });
 
-      if (!response.ok) {
-        throw new Error('서버에 문제가 발생했습니다. 잠시 후 다시 시도해주세요.');
-      }
-
       const result = await response.json();
-      //console.log(result);  // FOR DEBUG
+      console.log(result);  // FOR DEBUG
 
-      if (result.is_auth) {
+      if (response.status === 200 && result.is_auth) {
         await AsyncStorage.setItem(accessTokenKey, result.access_token);
         dispatch({ type: 'SIGN_IN', token: result.access_token });
-      } else {
+      } else if (response.status === 401) {
         setErrorMessage('로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.');
+      } else if (response.status === 404) {
+        setErrorMessage('회원가입이 필요한 서비스입니다. 회원가입을 진행해주세요.');
+      } else {
+        setErrorMessage('서버에 문제가 발생했습니다. 잠시 후 다시 시도해주세요.');
       }
     } catch (e) {
-      //console.error('Login error:', e);
+      console.error('Login error:', e);
       setErrorMessage('서버가 응답하지 않습니다. 관리자에게 문의하세요.');
     } finally {
-        setIsLoading(false);        // 로딩 종료
+      setIsLoading(false);        // 로딩 종료
     }
   };
 
@@ -87,7 +87,7 @@ export default function LoginScreen({ navigation, dispatch }) {
             >
               <Text style={styles.buttonText}>Sign In</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+            <TouchableOpacity onPress={() => navigation.navigate('RegisterScreen')}>
                 <Text style={styles.link}>Don't have an account? Sign Up</Text>
             </TouchableOpacity>
           </>

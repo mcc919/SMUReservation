@@ -9,6 +9,7 @@ import { API_URL } from '@env';
 import LoginScreen from './screens/LoginScreen';
 import HomeScreen from './screens/HomeScreen';
 import ReservationScreen from './screens/ReservationScreen';
+import RegisterScreen from './screens/RegisterScreen';
 
 import authReducer, { initialState } from './reducers/authReducer';
 
@@ -84,9 +85,16 @@ export default function App() {
               }} />
           </>
         ) : (
-          <Stack.Screen name="SignInScreen" options={{ title: 'Login' }}>
-            {props => <LoginScreen {...props} dispatch={dispatch} />}
-          </Stack.Screen>
+          <>
+            <Stack.Screen name="SignInScreen" options={{ title: 'Login' }}>
+              {props => <LoginScreen {...props} dispatch={dispatch} />}
+            </Stack.Screen>
+            <Stack.Screen
+              name="RegisterScreen"
+              component={RegisterScreen}
+              options={{ title: '회원가입' }}>
+            </Stack.Screen>
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>
