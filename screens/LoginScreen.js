@@ -17,7 +17,7 @@ import styles from '../constants/styles';
 const accessTokenKey = '@accessTokenKey';
 
 export default function LoginScreen({ navigation, dispatch }) {
-  const [username, setUsername] = useState('');
+  const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -29,22 +29,42 @@ export default function LoginScreen({ navigation, dispatch }) {
       const response = await fetch(`${API_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `username=${username}&password=${password}`,
+        body: `userId=${userId}&password=${password}`,
       });
 
-      const result = await response.json();
-      console.log(result);  // FOR DEBUG
+      //console.log('이것이 response입니다.', response);  // FOR DEBUG
+      //console.log('이것이 response.status입니다.', response.status);  // FOR DEBUG
 
-      if (response.status === 200 && result.is_auth) {
-        await AsyncStorage.setItem(accessTokenKey, result.access_token);
-        dispatch({ type: 'SIGN_IN', token: result.access_token });
-      } else if (response.status === 401) {
-        setErrorMessage('로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.');
-      } else if (response.status === 404) {
-        setErrorMessage('회원가입이 필요한 서비스입니다. 회원가입을 진행해주세요.');
-      } else {
-        setErrorMessage('서버에 문제가 발생했습니다. 잠시 후 다시 시도해주세요.');
-      }
+      switch (response.status) {
+        case 200:
+          result = await response.json();
+          console.log('이것이 result입니다.', result);  // FOR DEBUG
+          if (result.is_auth) {
+            await AsyncStorage.setItem(accessTokenKey, result.access_token);
+            dispatch({ type: 'SIGN_IN', token: result.access_token });
+          } else {
+            setErrorMessage('아이디 또는 비밀번호가 일치하지 않습니다.');
+          }
+          break;
+        case 400:
+          setErrorMessage('아이디 또는 비밀번호를 입력해주세요.');
+          break;
+        case 401:
+          setErrorMessage('아이디 또는 비밀번호가 일치하지 않습니다.');
+          break;
+        case 404:
+          setErrorMessage('존재하지 않는 사용자입니다. 회원가입을 진행해주세요.');
+          break;
+        case 409:
+          setErrorMessage('이미 존재하는 사용자입니다. 관리자에게 문의하세요.');
+          break;
+        case 500:
+          setErrorMessage('서버 내부 오류입니다. 관리자에게 문의하세요.');
+          break;
+        default:
+          setErrorMessage('알 수 없는 오류가 발생했습니다. 관리자에게 문의하세요.');
+          break;
+        }
     } catch (e) {
       console.error('Login error:', e);
       setErrorMessage('서버가 응답하지 않습니다. 관리자에게 문의하세요.');
@@ -63,14 +83,14 @@ export default function LoginScreen({ navigation, dispatch }) {
         <View style={styles.inner}>
           <TextInput
             style={styles.input}
-            placeholder="Username"
-            value={username}
-            onChangeText={setUsername}
+            placeholder="학번"
+            value={userId}
+            onChangeText={setUserId}
             autoCapitalize="none"
           />
           <TextInput
             style={styles.input}
-            placeholder="Password"
+            placeholder="비밀번호"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -88,7 +108,7 @@ export default function LoginScreen({ navigation, dispatch }) {
               <Text style={styles.buttonText}>Sign In</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate('RegisterScreen')}>
-                <Text style={styles.link}>Don't have an account? Sign Up</Text>
+                <Text style={styles.link}>계정이 없으신가요? 회원가입</Text>
             </TouchableOpacity>
           </>
           )}

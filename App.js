@@ -37,6 +37,8 @@ export default function App() {
           const response = await fetch(`${API_URL}/validateToken`, {
             headers: { Authorization: `Bearer ${token}` },
           });
+          print('이것이 token입니다.', token);  // FOR DEBUG
+          print('이것이 response입니다.', response);  // FOR DEBUG
           if (!response.ok) {
             token = null;
             console.log('유효한 토큰이 아니므로, 로컬에서 삭제하고 로그인 페이지로 이동');  // FOR DEBUG

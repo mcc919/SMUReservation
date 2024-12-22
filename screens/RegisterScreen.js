@@ -1,59 +1,54 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Platform, TextInput, ActivityIndicator, Alert} from 'react-native';
-import CheckBox from '@react-native-community/checkbox';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '@env';
 import styles from '../constants/styles';
 
 export default function RegisterScreen({ navigation }) {
 
-    const [username, setUsername] = useState('');
+    const [userId, setUserId] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [agreeToTerms, setAgreeToTerms] = useState(false);
 
     const register = async () => {
-        if (!agreeToTerms) {
-            setErrorMessage('약관에 동의해야 합니다.');
-            return;
-        }
         setIsLoading(true);
         try {
             const response = await fetch(`${API_URL}/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `username=${username}&password=${password}`,
+                body: `userId=${userId}&password=${password}`,
             });
             console.log('이것이 response입니다.', response);
 
-            if (response.ok) {
-                Alert.alert('회원가입 성공', '로그인 화면으로 이동합니다.', [
-                    {
-                        text: '확인',
-                        onPress: () => navigation.navigate('LoginScreen'),
-                    },
-                ]);
-            } else {
-                if (response.status === 409) {
+            switch (response.status) { 
+                case 201:
+                    Alert.alert('회원가입 성공', '로그인 페이지로 이동합니다.', [
+                        {
+                            text: '확인',
+                            onPress: () => navigation.goBack('LoginScreen'),
+                        },
+                    ]);
+                    break;
+                case 400:
+                    setErrorMessage('학번 또는 비밀번호를 입력해주세요.');
+                    break
+                case 409:
                     setErrorMessage('이미 존재하는 사용자입니다. 관리자에게 문의하세요.');
-                } else if (response.status === 400) {
-                    setErrorMessage('아이디와 비밀번호를 확인해주세요.');
-                } else if (response.status === 500) {
-                    setErrorMessage('이미 존재하는 사용자입니다. 관리자에게 문의하세요.');
-                } else {
+                    break;
+                case 500:
+                    setErrorMessage('서버 내부 오류입니다. 관리자에게 문의하세요.');
+                    break;
+                default:
                     setErrorMessage('알 수 없는 오류가 발생했습니다. 관리자에게 문의하세요.');
-                }
+                    break;
             }
-            
         } catch (e) {
             console.error('Register error:', e);
-            setErrorMessage('서버가 응답하지 않습니다. 관리자에게 문의하세요.');
+            setErrorMessage('서버가 응답하지 않습니다.');
         } finally {
             setIsLoading(false);
         }
     }
-    
     
     return (
         <KeyboardAvoidingView
@@ -65,25 +60,18 @@ export default function RegisterScreen({ navigation }) {
                 <View style={styles.inner}>
                     <TextInput
                         style={styles.input}
-                        placeholder="Username"
-                        value={username}
-                        onChangeText={setUsername}
+                        placeholder="학번"
+                        value={userId}
+                        onChangeText={setUserId}
                         autoCapitalize="none"
                     />
                     <TextInput
                         style={styles.input}
-                        placeholder="Password"
+                        placeholder="비밀번호"
                         value={password}
                         onChangeText={setPassword}
                         secureTextEntry
                     />
-                    <View style={styles.checkboxContainer}>
-                        <CheckBox
-                            value={agreeToTerms}
-                            onValueChange={setAgreeToTerms}
-                        />
-                        <Text style={styles.label}>약관에 동의합니다.</Text>
-                    </View>
                     {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
                     {isLoading ? (
                         <ActivityIndicator size="large" color="#3b82f6" />
@@ -94,7 +82,7 @@ export default function RegisterScreen({ navigation }) {
                                 onPress={register}
                                 disabled={isLoading} // 로딩 중 버튼 비활성화
                             >
-                                <Text style={styles.buttonText}>Sign In</Text>
+                                <Text style={styles.buttonText}>회원가입</Text>
                             </TouchableOpacity>
                         </>
                     )}
