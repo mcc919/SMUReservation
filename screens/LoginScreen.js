@@ -32,7 +32,7 @@ export default function LoginScreen({ navigation, dispatch }) {
         body: `userId=${userId}&password=${password}`,
       });
 
-      //console.log('이것이 response입니다.', response);  // FOR DEBUG
+      console.log('이것이 response입니다.', response);  // FOR DEBUG
       //console.log('이것이 response.status입니다.', response.status);  // FOR DEBUG
 
       switch (response.status) {
@@ -105,7 +105,7 @@ export default function LoginScreen({ navigation, dispatch }) {
               onPress={signIn}
               disabled={isLoading} // 로딩 중 버튼 비활성화
             >
-              <Text style={styles.buttonText}>Sign In</Text>
+              <Text style={styles.buttonText}>로그인</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate('RegisterScreen')}>
                 <Text style={styles.link}>계정이 없으신가요? 회원가입</Text>

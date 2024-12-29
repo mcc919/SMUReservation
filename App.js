@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect } from 'react';
+import React, { useReducer, useEffect, useState } from 'react';
 import { ActivityIndicator, View, Button, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -13,6 +13,8 @@ import RegisterScreen from './screens/RegisterScreen';
 
 import authReducer, { initialState } from './reducers/authReducer';
 
+import { getToday } from './utils/utils';
+
 import styles from './constants/styles';
 
 
@@ -20,6 +22,7 @@ const accessTokenKey = '@accessTokenKey';
 
 export default function App() {
   const [state, dispatch] = useReducer(authReducer, initialState);
+  const [today, setToday] = useState('');
 
   async function logout() {
     await AsyncStorage.removeItem(accessTokenKey);
@@ -31,7 +34,7 @@ export default function App() {
       let token = null;
       try {
         token = await AsyncStorage.getItem(accessTokenKey);
-        await AsyncStorage.removeItem(accessTokenKey);    // FOR DEBUG
+        //await AsyncStorage.removeItem(accessTokenKey);    // FOR DEBUG
 
         if (token) {
           const response = await fetch(`${API_URL}/validateToken`, {
@@ -43,15 +46,18 @@ export default function App() {
             token = null;
             console.log('유효한 토큰이 아니므로, 로컬에서 삭제하고 로그인 페이지로 이동');  // FOR DEBUG
             await AsyncStorage.removeItem(accessTokenKey);
+            dispatch({ type: 'SIGN_OUT' });
           }
         }
       } catch (e) {
         token = null;
         console.log('May be network error...'); // FOR DEBUG 유저에게 어떻게 알릴 것인지?
+        dispatch({ type: 'SIGN_OUT' });
       }
-      dispatch({ type: token ? 'RESTORE_TOKEN' : 'SIGN_OUT', token });
+      dispatch({ type: 'RESTORE_TOKEN', token });
     };
     restoreToken();
+    setToday(getToday());
   }, []);
 
   const Stack = createNativeStackNavigator();
@@ -80,11 +86,12 @@ export default function App() {
               }} />
             <Stack.Screen
               name="ReservationScreen"
-              component={ReservationScreen}
               options={{
-                title: '예약',
+                title: `예약 날짜: ${today}`,
                 gestureEnabled: false
-              }} />
+              }}>
+                {props => <ReservationScreen {...props} dispatch={dispatch} />}
+              </Stack.Screen>
           </>
         ) : (
           <>
