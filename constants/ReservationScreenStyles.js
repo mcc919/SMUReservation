@@ -2,8 +2,7 @@ import { StyleSheet } from "react-native";
 
 const timeslot = {
     width: "20%",
-    height: 30,
-    backgroundColor: '#3b82f6',
+    height: 20,
     margin: 5,
     justifyContent: "center",
     alignItems: "center"
@@ -20,27 +19,43 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "yellow",
+        backgroundColor: "#FFFFFF",
+        padding: 20,
+        //borderRadius: 10, // 모서리를 부드럽게
+        //shadowColor: "#000", // 약간의 그림자로 모달 강조
+        //shadowOffset: { width: 0, height: 2 },
+        //shadowOpacity: 0.25,
+        //shadowRadius: 4,
+        //elevation: 5, // Android에서 그림자 효과
     },
     modalTimeslotContainer: {
-        backgroundColor: 'lightgray',
-        flex: 9,
+        backgroundColor: '#F5F5F5',
+        flex: 7,
         alignItems: "center",
         justifyContent: "center",
     },
     timeslotRow: {
         flexDirection: "row",
-        backgroundColor: "yellow"
+        //backgroundColor: "yellow"
     },
     timeslot: {
-      ...timeslot  
+      ...timeslot,
+      backgroundColor: '#E0EAF6'
     },
     timeslotOccupied: {
         ...timeslot,
-        backgroundColor:"rgb(124, 124, 124)",
+        backgroundColor:"#D3D3D3",
+        borderColor: "#A9A9A9",
+        borderWidth: 1
+    },
+    timeslotSelected: {
+        ...timeslot,
+        backgroundColor: "#C8F2C2",
+        borderWidth: 2,
+        borderColor: "#82C091"
     },
     modalButtonContainer: {
-        backgroundColor: "green",
+        backgroundColor: "#EFEFEF",
         flex: 1,
         flexDirection: "row",
         justifyContent: "space-around",
@@ -48,7 +63,7 @@ const styles = StyleSheet.create({
         width: "50%",
     },
     modalButton: {
-        backgroundColor: "#3b82f6",
+        backgroundColor: "#A5D8FF",
         padding: 20,
         borderRadius: 20
     },
@@ -72,7 +87,7 @@ const styles = StyleSheet.create({
         
     },
     room: {
-        backgroundColor: "#3b82f6",
+        backgroundColor: "#A5D8FF",
         padding: 20,
         borderRadius: 20,
         //

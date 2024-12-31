@@ -17,13 +17,16 @@ export default function ReservationScreen({ navigation, dispatch }) {
     timeslots,
     reservationInfo,
     reservedTimeslotKey,
+    selectedTimeslotKey,
+    setSelectedTimeslotKey,
     setModalVisible,
     setSelectedRoom,
     setReservedTimeslotKey,
     fetchRooms,
-    handleReserve,
+    loadReservationInfo,
     checkReservedTimeslotKey,
     initializeTimeslots,
+    handleReservation,
   } = useReservationState(dispatch);
 
   useEffect(() => {
@@ -58,6 +61,8 @@ export default function ReservationScreen({ navigation, dispatch }) {
               onPress={() => {
                 setModalVisible(!modalVisible)
                 setSelectedRoom(null)
+                setSelectedTimeslotKey([]);
+                handleReservation(selectedRoom, '202010832');
               }}>
               <Text>예약</Text>
             </Pressable>
@@ -67,6 +72,7 @@ export default function ReservationScreen({ navigation, dispatch }) {
                 setModalVisible(!modalVisible);
                 setSelectedRoom(null);
                 setReservedTimeslotKey([]);
+                setSelectedTimeslotKey([]);
               }}>
               <Text>닫기</Text>
             </Pressable>
@@ -78,7 +84,7 @@ export default function ReservationScreen({ navigation, dispatch }) {
             <Pressable
               key={room.id}
               style={styles.room}
-              onPress={() => handleReserve(room.id)}>
+              onPress={() => loadReservationInfo(room.id)}>
               <Text style={styles.roomName}>{room.number}</Text>
             </Pressable>
           ) : null)}
@@ -88,7 +94,7 @@ export default function ReservationScreen({ navigation, dispatch }) {
           <Pressable
               key={room.id}
               style={styles.room}
-              onPress={() => handleReserve(room.id)}>
+              onPress={() => loadReservationInfo(room.id)}>
               <Text style={styles.roomName}>{room.number}</Text>
           </Pressable>
         ) : null)}
