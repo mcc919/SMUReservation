@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '@env';
+import UserContext from '../context/UserContext';
 import styles from '../constants/styles';
 
 const accessTokenKey = '@accessTokenKey';
@@ -21,6 +22,8 @@ export default function LoginScreen({ navigation, dispatch }) {
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const { user , setUser } = useContext(UserContext);
 
   const signIn = async () => {
     setIsLoading(true);     // 로딩 시작
@@ -42,6 +45,7 @@ export default function LoginScreen({ navigation, dispatch }) {
           if (result.is_auth) {
             await AsyncStorage.setItem(accessTokenKey, result.access_token);
             dispatch({ type: 'SIGN_IN', token: result.access_token });
+            setUser(result.user);
           } else {
             setErrorMessage('아이디 또는 비밀번호가 일치하지 않습니다.');
           }
