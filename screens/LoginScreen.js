@@ -27,16 +27,20 @@ export default function LoginScreen({ navigation, dispatch }) {
 
   const signIn = async () => {
     setIsLoading(true);     // 로딩 시작
+
+    const controller = new AbortController();
+    const  timeoutId = setTimeout(() => controller.abort(), 3000);
+    
     try {
-      console.log(API_URL);
       const response = await fetch(`${API_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        signal: controller.signal,
         body: `userId=${userId}&password=${password}`,
       });
 
       console.log('이것이 response입니다.', response);  // FOR DEBUG
-      //console.log('이것이 response.status입니다.', response.status);  // FOR DEBUG
+      clearTimeout(timeoutId);
 
       switch (response.status) {
         case 200:
@@ -54,7 +58,7 @@ export default function LoginScreen({ navigation, dispatch }) {
           setErrorMessage('아이디 또는 비밀번호를 입력해주세요.');
           break;
         case 401:
-          setErrorMessage('아이디 또는 비밀번호가 일치하지 않습니다.');
+          setErrorMessage('아이디 또는 비밀번호가 일치하지 않습 니다.');
           break;
         case 404:
           setErrorMessage('존재하지 않는 사용자입니다. 회원가입을 진행해주세요.');
@@ -73,6 +77,7 @@ export default function LoginScreen({ navigation, dispatch }) {
       console.error('Login error:', e);
       setErrorMessage('서버가 응답하지 않습니다. 관리자에게 문의하세요.');
     } finally {
+      clearTimeout(timeoutId);
       setIsLoading(false);        // 로딩 종료
     }
   };

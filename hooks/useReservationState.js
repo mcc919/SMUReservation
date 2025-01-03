@@ -17,12 +17,17 @@ export function useReservationState(dispatch) {
     // 방 목록을 불러온다. (예약가능, 수리중, 폐쇄된 방 모두 포함)
     const fetchRooms = async () => {
         try {
-            const response = await apiRequest('rooms', { 
-              method: 'GET',
-              'Content-Type': 'application/json',
-            }, dispatch);
-            
-            setAvailableRooms(response);
+          const response = await apiRequest('rooms', { 
+            method: 'GET',
+            'Content-Type': 'application/json',
+          }, dispatch);
+          
+          if (!response.ok) {
+            console.log('방 목록을 불러오는데 실패하였습니다.')
+          } else {
+            const result = await response.json();
+            setAvailableRooms(result);
+          }
         } catch (e) {
             console.error("Error fetching rooms:", e);
         }
@@ -36,10 +41,14 @@ export function useReservationState(dispatch) {
         try {
             const today = getToday();
             const url = `/reservations/room/${roomId}/date/${today}`;
-            console.log(today);
-            const result = await apiRequest(url, {}, dispatch);
-            console.log(result);
-            setReservationInfo(result);
+            const response = await apiRequest(url, {}, dispatch);
+
+            const result = await response.json();
+            if (!response.ok) {
+              console.log(result.message);
+            } else {
+              setReservationInfo(result);
+            }
         } catch (e) {
             console.log("Error fetching reservations", e);
             return null;
@@ -170,7 +179,7 @@ export function useReservationState(dispatch) {
       console.log('handleReservation 호출됨\nselectedTimeslotKey: ', selectedTimeslotKey);
       if (selectedTimeslotKey.length === 0) {
         console.log('예약할 시간대를 선택해주세요.');
-        Alert.alert('예약 실패', '예약할 시간대를 선택해주세요.', [
+        Alert.alert('오류', '예약할 시간대를 선택해주세요. 🙄', [
           {
             text: '확인',
             //onPress: () => (),
@@ -178,7 +187,7 @@ export function useReservationState(dispatch) {
         ]);
         return;
       } else if (selectedTimeslotKey.length > 4 * 3) {
-        console.log('한 번에 3시간을 초과하는 시간을 예약할 수 없습니다.');
+        console.log('한 번에 3시간을 초과하여 예약할 수 없습니다.');
         return;
       } else {
         const today = getToday();
@@ -214,13 +223,22 @@ export function useReservationState(dispatch) {
           }, dispatch);
 
           console.log(response);
-          Alert.alert('예약되었습니다!', `${today}\n${startHour}:${startMinute}:00 ~ ${endHour}:${endMinute}:00\n연습실: ${roomNumber}`, [
-            {
+          const result = await response.json()
+          if (!response.ok) {
+            Alert.alert('예약 실패...🥺', result.message), [{
               text: '확인',
               onPress: () => setModalVisible(false),
-            },
-          ]);
-
+            }]
+          } else {
+            Alert.alert('예약되었습니다! ☺️', `${today}\n${startHour}:${startMinute}:00 ~ ${endHour}:${endMinute}:00\n연습실: ${roomNumber}`, [
+              {
+                text: '확인',
+                onPress: () => setModalVisible(false),
+              },
+            ]);
+          }
+          setSelectedRoom(null)
+          setSelectedTimeslotKey([]);
         } catch (e) {
           console.log(e);
         }

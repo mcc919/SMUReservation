@@ -23,6 +23,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import { MaterialIcons } from '@expo/vector-icons';
 import UserContext, { UserProvider } from './context/UserContext';
+import { apiRequest } from './utils/api';
 
 const accessTokenKey = '@accessTokenKey';
 
@@ -30,40 +31,29 @@ export default function App() {
   const [ state, dispatch ] = useReducer(authReducer, initialState);
   const [ today, setToday ] = useState('');
   const { user , setUser } = useContext(UserContext);
+  console.log('useContext에서 가져온 user:', user); // 값 확인
+  console.log('useContext에서 가져온 setUser:', setUser);
 
   async function logout() {
     await AsyncStorage.removeItem(accessTokenKey);
     dispatch({type: 'SIGN_OUT'});
-    setUser([]);
+    setUser({});
     
   }
 
   useEffect(() => {
     const restoreToken = async () => {
-      let token = null;
-      try {
-        token = await AsyncStorage.getItem(accessTokenKey);
-        //await AsyncStorage.removeItem(accessTokenKey);    // FOR DEBUG
-
-        if (token) {
-          const response = await fetch(`${API_URL}/validateToken`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          print('이것이 token입니다.', token);  // FOR DEBUG
-          print('이것이 response입니다.', response);  // FOR DEBUG
-          if (!response.ok) {
-            token = null;
-            console.log('유효한 토큰이 아니므로, 로컬에서 삭제하고 로그인 페이지로 이동');  // FOR DEBUG
-            await AsyncStorage.removeItem(accessTokenKey);
-            dispatch({ type: 'SIGN_OUT' });
-          }
-        }
-      } catch (e) {
-        token = null;
-        console.log('May be network error...'); // FOR DEBUG 유저에게 어떻게 알릴 것인지?
+      const response = await apiRequest('/validateToken', {}, dispatch);
+      if (!response.ok) {
         dispatch({ type: 'SIGN_OUT' });
+        console.log(response.status);
       }
-      dispatch({ type: 'RESTORE_TOKEN', token });
+      else {
+        const token = await AsyncStorage.getItem(accessTokenKey);
+        
+        dispatch({ type: 'RESTORE_TOKEN', token });
+        //setUser(result);    // 왜인지 동작을 안함, 그냥 ReservationScreen.js 에서 유저 데이터 받아오도록 처리
+      }
     };
     restoreToken();
     setToday(getToday());
@@ -155,7 +145,7 @@ export default function App() {
             </>
           ) : (
             <>
-              <Stack.Screen name="LoginScreen" options={{ title: 'Login' }}>
+              <Stack.Screen name="LoginScreen" options={{ title: '로그인' }}>
                 {props => <LoginScreen {...props} dispatch={dispatch} />}
               </Stack.Screen>
               <Stack.Screen

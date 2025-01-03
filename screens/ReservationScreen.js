@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import { API_URL } from '@env';
 import { apiRequest } from '../utils/api';
 import styles from '../constants/ReservationScreenStyles';
-import { Pressable } from 'react-native';
+import { Pressable, ActivityIndicator } from 'react-native';
 import { Modal } from 'react-native';
 import { getToday } from '../utils/utils';
 import { useReservationState } from '../hooks/useReservationState';
+import UserContext from '../context/UserContext';
 
 export default function ReservationScreen({ navigation, dispatch }) {
 
+  const [isLoading, setIsLoading] = useState(false);
   const {
     availableRooms,
     modalVisible,
@@ -29,9 +31,28 @@ export default function ReservationScreen({ navigation, dispatch }) {
     handleReservation,
   } = useReservationState(dispatch);
 
+  const { user, setUser } = useContext(UserContext);
+
+  const getUserdata = async () => {
+    try {
+      const response = await apiRequest('/validateToken', {}, dispatch);
+      if (!response.ok) {
+        console.log(response.status);
+        dispatch({ type: 'SIGN_OUT'});
+      } else {
+        const result = await response.json();
+        setUser(result);
+      }
+    } catch (e) {
+      console.log(e);
+      console.log('유저 정보를 불러오지 못했습니다.');
+    }
+  }
+
   useEffect(() => {
     // 예약 가능한 연습실 정보 불러오기
     fetchRooms();
+    getUserdata();
   }, []);
   useEffect(()=> {
     if (reservationInfo.length > 0) {
@@ -55,14 +76,14 @@ export default function ReservationScreen({ navigation, dispatch }) {
           <View style={styles.modalTimeslotContainer}>
             {timeslots}
           </View>
-          <View style={styles.modalButtonContainer}>
-            <Pressable
+          <View style={styles.modalButtonContainer}>{ !isLoading ? (
+            <>
+              <Pressable
               style={styles.modalButton}
-              onPress={() => {
-                setModalVisible(!modalVisible)
-                setSelectedRoom(null)
-                setSelectedTimeslotKey([]);
-                handleReservation(selectedRoom, '202010832');
+              onPress={async() => {
+                setIsLoading(true);
+                await handleReservation(user.user_id, selectedRoom);
+                setIsLoading(false);
               }}>
               <Text>예약</Text>
             </Pressable>
@@ -76,6 +97,14 @@ export default function ReservationScreen({ navigation, dispatch }) {
               }}>
               <Text>닫기</Text>
             </Pressable>
+          </>
+          ) : (
+            <>
+              <View style={styles.centered}>
+                <ActivityIndicator size="large" />
+              </View>
+            </>
+          )}
           </View>
         </View>
       </Modal>

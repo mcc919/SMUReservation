@@ -23,7 +23,12 @@ export default function RecordsScreen() {
 
     const getRecords = async () => {
         const response = await apiRequest(`/reservations/user/${user.user_id}`);
-        setRecords(response);
+        if (!response.ok) {
+            console.log(response);
+        } else {
+            const result = await response.json()
+            setRecords(result);
+        }
     }
 
     const renderItem = ({item}) => {
