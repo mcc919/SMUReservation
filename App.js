@@ -23,7 +23,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import { MaterialIcons } from '@expo/vector-icons';
 import UserContext, { UserProvider } from './context/UserContext';
+import ReservationContext, { ReservationProvider } from './context/ReservationContext';
 import { apiRequest } from './utils/api';
+import { useReservationState } from './hooks/useReservationState';
 
 const accessTokenKey = '@accessTokenKey';
 
@@ -33,6 +35,8 @@ export default function App() {
   const { user , setUser } = useContext(UserContext);
   console.log('useContext에서 가져온 user:', user); // 값 확인
   console.log('useContext에서 가져온 setUser:', setUser);
+
+  const reservationState = useReservationState(dispatch);
 
   async function logout() {
     await AsyncStorage.removeItem(accessTokenKey);
@@ -131,32 +135,34 @@ export default function App() {
 
   return (
     <UserProvider>
-      <NavigationContainer>
-        <Stack.Navigator>
-          {state.userToken ? (
-            <>
-              <Stack.Screen
-                name="Tabs"
-                component={TabsComponents}
-                options={{
-                  headerShown: false
-                }}
-              />
-            </>
-          ) : (
-            <>
-              <Stack.Screen name="LoginScreen" options={{ title: '로그인' }}>
-                {props => <LoginScreen {...props} dispatch={dispatch} />}
-              </Stack.Screen>
-              <Stack.Screen
-                name="RegisterScreen"
-                component={RegisterScreen}
-                options={{ title: '회원가입' }}>
-              </Stack.Screen>
-            </>
-          )}
-        </Stack.Navigator>
-      </NavigationContainer>
+      <ReservationProvider>
+        <NavigationContainer>
+          <Stack.Navigator>
+            {state.userToken ? (
+              <>
+                <Stack.Screen
+                  name="Tabs"
+                  component={TabsComponents}
+                  options={{
+                    headerShown: false
+                  }}
+                />
+              </>
+            ) : (
+              <>
+                <Stack.Screen name="LoginScreen" options={{ title: '로그인' }}>
+                  {props => <LoginScreen {...props} dispatch={dispatch} />}
+                </Stack.Screen>
+                <Stack.Screen
+                  name="RegisterScreen"
+                  component={RegisterScreen}
+                  options={{ title: '회원가입' }}>
+                </Stack.Screen>
+              </>
+            )}
+          </Stack.Navigator>
+        </NavigationContainer>
+      </ReservationProvider>
     </UserProvider>
   );
 }

@@ -8,18 +8,19 @@ import { Modal } from 'react-native';
 import { getToday } from '../utils/utils';
 import { useReservationState } from '../hooks/useReservationState';
 import UserContext from '../context/UserContext';
+import ReservationContext from '../context/ReservationContext';
 
 export default function ReservationScreen({ navigation, dispatch }) {
 
   const [isLoading, setIsLoading] = useState(false);
   const {
-    availableRooms,
     modalVisible,
     selectedRoom,
     timeslots,
     reservationInfo,
     reservedTimeslotKey,
     selectedTimeslotKey,
+    reservationInfoGroup,
     setSelectedTimeslotKey,
     setModalVisible,
     setSelectedRoom,
@@ -29,9 +30,11 @@ export default function ReservationScreen({ navigation, dispatch }) {
     checkReservedTimeslotKey,
     initializeTimeslots,
     handleReservation,
+    setReservationInfoGroup
   } = useReservationState(dispatch);
 
   const { user, setUser } = useContext(UserContext);
+  const { availableRooms, setAvailableRooms } = useContext(ReservationContext);
 
   const getUserdata = async () => {
     try {
@@ -54,9 +57,11 @@ export default function ReservationScreen({ navigation, dispatch }) {
     fetchRooms();
     getUserdata();
   }, []);
+
   useEffect(()=> {
     if (reservationInfo.length > 0) {
       checkReservedTimeslotKey();
+      console.log('here:');
     }
   }, [reservationInfo])
 

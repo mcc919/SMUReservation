@@ -1,37 +1,49 @@
 import { View, Pressable, Text, Alert } from 'react-native';
-import { useState, useEffect } from 'react'
-import { getToday } from '../utils/utils'
+import { useState, useEffect, useContext } from 'react'
+import { getToday, getDate, getTime } from '../utils/utils'
 import { apiRequest } from "../utils/api";
 import styles from '../constants/ReservationScreenStyles';
-
+import ReservationContext from '../context/ReservationContext';
+//import { getRecords } from '../screens/RecordsScreen';
 
 export function useReservationState(dispatch) {
-    const [availableRooms, setAvailableRooms] = useState([]);   // 서버로부터 받아온 room 리스트 (사용불가한 방도 있음...)
+    //const [availableRooms, setAvailableRooms] = useState([]);   // 서버로부터 받아온 room 리스트 (사용불가한 방도 있음...)
     const [modalVisible, setModalVisible] = useState(false);    // 모달창 표시 여부
     const [selectedRoom, setSelectedRoom] = useState(null);     // 사용자가 예약하고자 하는 room의 id
     const [timeslots, setTimeslots] = useState([]);             // timeslot 컴포넌트들의 리스트
     const [reservationInfo, setReservationInfo] = useState([]); // 서버로부터 (selectedRoom && today)에 해당하는 예약 정보를 가져옴
+    const [reservationInfoGroup, setReservationInfoGroup] = useState([]); // reservationInfo를 예약 별로 묶음 ex) [{keys: [1, 2, 3], info: {}}, {keys: [10, 11, 12, 13], info: {}} ...]
     const [reservedTimeslotKey, setReservedTimeslotKey] = useState([]); // reservationInfo에서 이미 예약된 timeslot의 key를 가져옴
     const [selectedTimeslotKey, setSelectedTimeslotKey] = useState([]);   // modal창에서 사용자가 선택한 timeslot
 
+    const { availableRooms, setAvailableRooms } = useContext(ReservationContext);
+
     // 방 목록을 불러온다. (예약가능, 수리중, 폐쇄된 방 모두 포함)
     const fetchRooms = async () => {
-        try {
-          const response = await apiRequest('rooms', { 
-            method: 'GET',
-            'Content-Type': 'application/json',
-          }, dispatch);
-          
-          if (!response.ok) {
-            console.log('방 목록을 불러오는데 실패하였습니다.')
-          } else {
-            const result = await response.json();
-            setAvailableRooms(result);
-          }
-        } catch (e) {
-            console.error("Error fetching rooms:", e);
+      try {
+        const response = await apiRequest('rooms', { 
+          method: 'GET',
+          'Content-Type': 'application/json',
+        }, dispatch);
+        
+        if (!response.ok) {
+          console.log('방 목록을 불러오는데 실패하였습니다.')
+        } else {
+          const result = await response.json();
+          setAvailableRooms(result);
         }
+      } catch (e) {
+          console.error("Error fetching rooms:", e);
+      }
     }
+
+    useEffect(() => {
+      console.log('available rooms: ', availableRooms);
+    }, [availableRooms])
+
+    useEffect(() => {
+      console.log('reservationInfoGroup: ', reservationInfoGroup);
+    }, [reservationInfoGroup]);
     
     // 유저가 선택한 방에 대한 예약 정보를 불러온다.
     const loadReservationInfo = async (roomId) => {
@@ -55,11 +67,63 @@ export function useReservationState(dispatch) {
         }
     }
 
+    // 예약자 정보를 불러온다.
+    const checkReservationInfo = async (key) => {
+      let reservationGroup = null;
+      reservationInfoGroup.map((group) => {
+        if (group.keys.includes(key)) {
+          reservationGroup = group;
+        }
+      })
+      if (reservationGroup) {
+        console.log('t:', reservationGroup);
+        try {
+          const response = await apiRequest(`/user/${reservationGroup.info.user_id}`, );
+          const result = await response.json();
+          if (!response.ok) {
+            console.log(result.message);
+          } else {
+            const date = getDate(reservationGroup.info.start_time, 'ko');
+            const startTime = getTime(reservationGroup.info.start_time);
+            const endTime = getTime(reservationGroup.info.end_time);
+            const str = `${result.username_kor}\n${date}\n${startTime}-${endTime}`;
+            return (
+              Alert.alert('예약자 정보', str, [{
+                text: '확인',
+                onPress: () => console.log('onpressed')
+              }])
+            )
+          }
+        } catch (e) {
+          console.log(e);
+        }
+      }
+      return (
+        Alert.alert('오류', '예약자 정보를 불러오는데 실패했습니다.', [{
+          text: '확인',
+          onPress: () => console.log('ㅇㅋ')
+        }])
+      );
+    }
+
     // 유저가 모달창에서 예약할 시간대를 선택하면 반영한다.
     const selectTimeslot = (key) => {
+      if (reservedTimeslotKey.includes(key)) {
+        if (selectedTimeslotKey.length === 0) {
+          // show whose reservation is
+          checkReservationInfo(key);
+        } else {
+          setSelectedTimeslotKey([]);
+        }
+        
+        return;
+      }
+
       if (selectedTimeslotKey.length === 0) {
         setSelectedTimeslotKey([key]);
+        return;
       }
+      
       // 항상 정렬되어 있다고 가정
       const firstKey = selectedTimeslotKey[0];
       const lastKey = selectedTimeslotKey[selectedTimeslotKey.length - 1];
@@ -155,8 +219,8 @@ export function useReservationState(dispatch) {
     // 불러온 예약 정보를 바탕으로 예약된 시간대 목록을 리스트로 저장한다. 추후에 initializeTimeslot 함수에 활용됨.
     // (예약 정보를 불러오는 loadReservation 함수가 실행된 후에야 실행되어야 함.)
     const checkReservedTimeslotKey = () => {
-      const tmp = [];   // timeslot-{key}중 key를 보관할 리스트
-  
+      const _reservationInfo = [];   // timeslot-{key}중 key를 보관할 리스트
+
       reservationInfo.map((info) => {
         const startTime = info.start_time.split('-').slice(-3, -1).map((value) => parseInt(value));   // X시 X분 -> [X, X]
         const endTime = info.end_time.split('-').slice(-3, -1).map((value) => parseInt(value));     // X시 X분 -> [X, X]
@@ -165,14 +229,27 @@ export function useReservationState(dispatch) {
         const startTimeslot = (startTime[0] - 8) * 4 + startTime[1]/15;
         const endTimeslot = (endTime[0] - 8) * 4 + endTime[1]/15 - 1;
   
-        for (let i = startTimeslot; i <= endTimeslot; i++)
-          tmp.push(i);
-        console.log('tmp: ', tmp);
+        let _group = [];
+        for (let i = startTimeslot; i <= endTimeslot; i++) {
+          _reservationInfo.push(i);
+          _group.push(i);
+        }
+        console.log('tmp: ', _reservationInfo);
+        console.log('_group', _group);
+
+        setReservationInfoGroup([
+          ...reservationInfoGroup, {
+            keys: _group,
+            info: info
+          }
+        ])
+        console.log(reservationInfoGroup);
       })
   
-      console.log('test: tmp.find(4)', !!tmp.find(num => num === 4));
+      console.log('test: tmp.find(4)', !!_reservationInfo.find(num => num === 4));
   
-      setReservedTimeslotKey(tmp);
+      setReservedTimeslotKey(_reservationInfo);
+      console.log('reservationinfogroup: ', reservationInfoGroup);
     }
 
     const handleReservation = async (userId) => {
@@ -206,7 +283,7 @@ export function useReservationState(dispatch) {
 
         const startTime = `${today}T${startHour}:${startMinute}:00`;
         const endTime = `${today}T${endHour}:${endMinute}:00`;
-        console.log('ddfdfdf', availableRooms.find((room) => room.id === selectedRoom));
+        //console.log('ddfdfdf', availableRooms.find((room) => room.id === selectedRoom));
         const roomNumber = availableRooms.find((room) => room.id === selectedRoom)?.number || null;
         try {
           const response = await apiRequest('reservations', {
@@ -233,12 +310,16 @@ export function useReservationState(dispatch) {
             Alert.alert('예약되었습니다! ☺️', `${today}\n${startHour}:${startMinute}:00 ~ ${endHour}:${endMinute}:00\n연습실: ${roomNumber}`, [
               {
                 text: '확인',
-                onPress: () => setModalVisible(false),
+                onPress: () => {
+                  setModalVisible(false);
+                  //getRecords()
+                }
               },
             ]);
           }
           setSelectedRoom(null)
           setSelectedTimeslotKey([]);
+          setReservationInfoGroup([]);
         } catch (e) {
           console.log(e);
         }
@@ -253,13 +334,13 @@ export function useReservationState(dispatch) {
 
     
       return {
-        availableRooms,
         modalVisible,
         selectedRoom,
         timeslots,
         reservationInfo,
         reservedTimeslotKey,
         selectedTimeslotKey,
+        reservationInfoGroup,
         setSelectedTimeslotKey,
         setModalVisible,
         setSelectedRoom,
@@ -268,6 +349,8 @@ export function useReservationState(dispatch) {
         loadReservationInfo,
         checkReservedTimeslotKey,
         initializeTimeslots,
-        handleReservation
+        handleReservation,
+        setReservationInfoGroup
+        
     };
 }
