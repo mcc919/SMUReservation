@@ -1,5 +1,20 @@
 import { StyleSheet } from "react-native";
 
+const cancelButton = {
+  flex: 1,
+  height: 40,
+  fontWeight: 'bold',
+  alignItems: 'center',
+  justifyContent: 'center',
+  paddingVertical: 5,
+  borderRadius: 5,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.1,
+  shadowRadius: 3,
+  elevation: 2,
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -24,28 +39,27 @@ const styles = StyleSheet.create({
     flex:4,
   },
   cancelButton: {
-    flex: 1,
-    height: 40,
+    ...cancelButton,
     backgroundColor: '#D32F2F',
-    color: 'red',
-    fontWeight: 'bold',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 5,
-    borderRadius: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
   },
-  cancelButtonDisabled: {
+  cancelledCancelButton: {
+    ...cancelButton,
     backgroundColor: '#FFCDD2', // 비활성화 상태에서는 연한 빨간색
   },
   cancelButtonText: {
     color: 'white',
     fontWeight: 'bold',
     fontSize: 14,
+  },
+  completedCancelButton: {
+    ...cancelButton,
+    backgroundColor: '#9E9E9E', // 회색 (완료 상태를 강조)
+    //color: '#FFFFFF',          // 텍스트 흰색
+  },
+  completedCancelButtonText: {
+    color: '#FFFFFF', 
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   roomNumberText: {
     fontSize: 24,

@@ -57,12 +57,23 @@ export default function RecordsScreen() {
             </View>
             <Pressable
                 style={[
-                    styles.cancelButton,
-                    item.status !== 'reserved' && styles.cancelButtonDisabled, // 비활성화 스타일 적용
+                    item.status === 'reserved' 
+                    ? styles.cancelButton 
+                    : item.status === 'completed' 
+                    ? styles.completedCancelButton 
+                    : styles.cancelledCancelButton,
                   ]}
                 onPress={() => onCancelPress(item.id)}
                 disabled={item.status !== 'reserved'}>
-                <Text style={styles.cancelButtonText}>{item.status === 'reserved' ? '예약 취소' : item.status === 'cancelled' ? '취소됨' : '완료'}</Text>
+                <Text style={
+                    item.status === 'completed' 
+                    ? styles.completedCancelButtonText 
+                    : styles.cancelButtonText
+                }>{item.status === 'reserved' 
+                    ? '예약 취소' 
+                    : item.status === 'cancelled' 
+                    ? '취소됨' 
+                    : '완료'}</Text>
             </Pressable>
         </Pressable>
     );
