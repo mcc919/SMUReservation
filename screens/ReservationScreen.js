@@ -5,7 +5,7 @@ import { apiRequest } from '../utils/api';
 import styles from '../constants/ReservationScreenStyles';
 import { Pressable, ActivityIndicator } from 'react-native';
 import { Modal } from 'react-native';
-import { getToday } from '../utils/utils';
+import { getReservationDay } from '../utils/utils';
 import { useReservationState } from '../hooks/useReservationState';
 import UserContext from '../context/UserContext';
 import ReservationContext from '../context/ReservationContext';
@@ -21,6 +21,8 @@ export default function ReservationScreen({ navigation, dispatch }) {
     reservedTimeslotKey,
     selectedTimeslotKey,
     reservationInfoGroup,
+    passedTimeslotKey,
+    setPassedTimeslotKey,
     setSelectedTimeslotKey,
     setModalVisible,
     setSelectedRoom,
@@ -69,6 +71,10 @@ export default function ReservationScreen({ navigation, dispatch }) {
     initializeTimeslots();
   }, [reservedTimeslotKey])
 
+  useEffect(() => {
+    initializeTimeslots();
+  }, [passedTimeslotKey])
+
   return (
     <View style={styles.container}>
       <Modal
@@ -99,6 +105,7 @@ export default function ReservationScreen({ navigation, dispatch }) {
                 setSelectedRoom(null);
                 setReservedTimeslotKey([]);
                 setSelectedTimeslotKey([]);
+                setReservationInfoGroup([]);
               }}>
               <Text>닫기</Text>
             </Pressable>

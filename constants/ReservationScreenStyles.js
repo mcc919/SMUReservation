@@ -39,13 +39,14 @@ const styles = StyleSheet.create({
         //backgroundColor: "yellow"
     },
     timeslot: {
-      ...timeslot,
-      backgroundColor: '#E0EAF6'
+        ...timeslot,
+        backgroundColor: '#F5F5DC',
+        borderColor: "#DCDCDC"
     },
     timeslotOccupied: {
         ...timeslot,
-        backgroundColor:"#D3D3D3",
-        borderColor: "#A9A9A9",
+        backgroundColor: "#F28B82",
+        borderColor: "#D46960",
         borderWidth: 1
     },
     timeslotSelected: {
@@ -53,6 +54,12 @@ const styles = StyleSheet.create({
         backgroundColor: "#C8F2C2",
         borderWidth: 2,
         borderColor: "#82C091"
+    },
+    timeslotPassed: {
+        ...timeslot,
+        backgroundColor:"#E8EAED",
+        borderColor: "#BDC1C6",
+        borderWidth: 1,
     },
     modalButtonContainer: {
         backgroundColor: "#EFEFEF",

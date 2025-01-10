@@ -1,10 +1,12 @@
 import { View, Pressable, Text, Alert } from 'react-native';
 import { useState, useEffect, useContext } from 'react'
-import { getToday, getDate, getTime } from '../utils/utils'
+import { getReservationDay, getDate, getTime, getKoreanTime } from '../utils/utils'
 import { apiRequest } from "../utils/api";
 import styles from '../constants/ReservationScreenStyles';
 import ReservationContext from '../context/ReservationContext';
 //import { getRecords } from '../screens/RecordsScreen';
+
+const INITIALIZING_TIME = 22;
 
 export function useReservationState(dispatch) {
     //const [availableRooms, setAvailableRooms] = useState([]);   // 서버로부터 받아온 room 리스트 (사용불가한 방도 있음...)
@@ -15,8 +17,10 @@ export function useReservationState(dispatch) {
     const [reservationInfoGroup, setReservationInfoGroup] = useState([]); // reservationInfo를 예약 별로 묶음 ex) [{keys: [1, 2, 3], info: {}}, {keys: [10, 11, 12, 13], info: {}} ...]
     const [reservedTimeslotKey, setReservedTimeslotKey] = useState([]); // reservationInfo에서 이미 예약된 timeslot의 key를 가져옴
     const [selectedTimeslotKey, setSelectedTimeslotKey] = useState([]);   // modal창에서 사용자가 선택한 timeslot
+    const [passedTimeslotKey, setPassedTimeslotKey] = useState(null);     // 이미 지나간 시간은 예약 못함
 
     const { availableRooms, setAvailableRooms } = useContext(ReservationContext);
+    const { openHour, setOpenHour } = useContext(ReservationContext);
 
     // 방 목록을 불러온다. (예약가능, 수리중, 폐쇄된 방 모두 포함)
     const fetchRooms = async () => {
@@ -50,8 +54,9 @@ export function useReservationState(dispatch) {
         console.log(`Reserved room ID: ${roomId}`);
         setModalVisible(true);
         setSelectedRoom(roomId);
+        checkPassedTimeslotKey();
         try {
-            const today = getToday();
+            const today = getReservationDay(openHour);
             const url = `/reservations/room/${roomId}/date/${today}`;
             const response = await apiRequest(url, {}, dispatch);
 
@@ -78,7 +83,7 @@ export function useReservationState(dispatch) {
       if (reservationGroup) {
         console.log('t:', reservationGroup);
         try {
-          const response = await apiRequest(`/user/${reservationGroup.info.user_id}`, );
+          const response = await apiRequest(`/user/${reservationGroup.info.user_id}`, dispatch);
           const result = await response.json();
           if (!response.ok) {
             console.log(result.message);
@@ -108,6 +113,11 @@ export function useReservationState(dispatch) {
 
     // 유저가 모달창에서 예약할 시간대를 선택하면 반영한다.
     const selectTimeslot = (key) => {
+      if (passedTimeslotKey > key) {
+        setSelectedTimeslotKey([]);
+        return;
+      }
+
       if (reservedTimeslotKey.includes(key)) {
         if (selectedTimeslotKey.length === 0) {
           // show whose reservation is
@@ -185,17 +195,20 @@ export function useReservationState(dispatch) {
     // 불러온 예약 정보를 반영하여 timeslot들을 초기화한다. (예약됨: 회색, 비어있음: 파랑) (추후에 레슨용으로 occupied된 경우도 표시해야함)
     const initializeTimeslots = () => {
         const tmp = [];
-        const startTime = 8;
-        const endTime = 22;
-        const timeDivision = 4;
-        const timeslotLength = (endTime - startTime) * timeDivision;
-        for (let i = 0; i < timeslotLength; i = i + timeDivision) {   // timeslot rows
+
+        const STARTTIME = 8;
+        const ENDTIME = 22;
+        const TIMEDIVISION = 4;
+        const timeslotLength = (ENDTIME - STARTTIME) * TIMEDIVISION;
+        for (let i = 0; i < timeslotLength; i = i + TIMEDIVISION) {   // timeslot rows
           tmp.push(
-          <View style={styles.timeslotRow} key={`row-${i/timeDivision}`}>
+          <View style={styles.timeslotRow} key={`row-${i/TIMEDIVISION}`}>
             {[0, 1, 2, 3].map((offset) => {
               const key = i + offset;
               const style = reservedTimeslotKey.includes(key)
                           ? styles.timeslotOccupied
+                          : passedTimeslotKey > key
+                          ? styles.timeslotPassed
                           : selectedTimeslotKey.includes(key)
                           ? styles.timeslotSelected
                           : styles.timeslot;
@@ -206,7 +219,7 @@ export function useReservationState(dispatch) {
                   style={style}
                   onPress={() => selectTimeslot(key)}
                 >
-                  <Text>{(i/timeDivision)+ startTime}시 {(60 / timeDivision)*(key % timeDivision)}분</Text>
+                  <Text>{(i/TIMEDIVISION)+ STARTTIME}시 {(60 / TIMEDIVISION)*(key % TIMEDIVISION)}분</Text>
                 </Pressable>
               )
             })}
@@ -214,6 +227,18 @@ export function useReservationState(dispatch) {
         }
         console.log('Initialized timeslots');
         setTimeslots(tmp);
+    }
+
+    const checkPassedTimeslotKey = () => {
+      const today = getKoreanTime();
+      console.log(today);
+      let key = 0;
+      if (today.hour() < 22) {
+        let key = (today.hour() - 8) * 4;
+        key = key + Math.floor(today.minute() / 15);
+      }
+      console.log('key: ', key);
+      setPassedTimeslotKey(key);
     }
 
     // 불러온 예약 정보를 바탕으로 예약된 시간대 목록을 리스트로 저장한다. 추후에 initializeTimeslot 함수에 활용됨.
@@ -267,7 +292,7 @@ export function useReservationState(dispatch) {
         console.log('한 번에 3시간을 초과하여 예약할 수 없습니다.');
         return;
       } else {
-        const today = getToday();
+        const today = getReservationDay(openHour);
         
         const startHour = String(Math.floor(selectedTimeslotKey[0] / 4) + 8).padStart(2, '0');
         const startMinute = String((selectedTimeslotKey[0] % 4) * 15).padStart(2, '0');
@@ -341,6 +366,8 @@ export function useReservationState(dispatch) {
         reservedTimeslotKey,
         selectedTimeslotKey,
         reservationInfoGroup,
+        passedTimeslotKey,
+        setPassedTimeslotKey,
         setSelectedTimeslotKey,
         setModalVisible,
         setSelectedRoom,

@@ -16,7 +16,7 @@ import NotificationsScreen from './screens/NotificationsScreen';
 
 import authReducer, { initialState } from './reducers/authReducer';
 
-import { getToday } from './utils/utils';
+import { getReservationDay } from './utils/utils';
 
 import styles from './constants/styles';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -28,6 +28,7 @@ import { apiRequest } from './utils/api';
 import { useReservationState } from './hooks/useReservationState';
 
 const accessTokenKey = '@accessTokenKey';
+
 
 export default function App() {
   const [ state, dispatch ] = useReducer(authReducer, initialState);
@@ -60,7 +61,7 @@ export default function App() {
       }
     };
     restoreToken();
-    setToday(getToday());
+    setToday(getReservationDay());
   }, []);
 
   const Stack = createNativeStackNavigator();
@@ -135,7 +136,7 @@ export default function App() {
 
   return (
     <UserProvider>
-      <ReservationProvider>
+      <ReservationProvider dispatch={dispatch}>
         <NavigationContainer>
           <Stack.Navigator>
             {state.userToken ? (
