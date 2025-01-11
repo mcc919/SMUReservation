@@ -9,9 +9,9 @@ dayjs.tz.setDefault("Asia/Seoul");
 dayjs.extend(isLeapYear);
 
 export function getReservationDay(openHour) {
-    const date = getKoreanTime();
+    let date = getKoreanTime();
     if (date.hour() >= openHour)
-        date.add(1, 'day');
+        date = date.add(1, 'day');
     
     const year = date.year();
     const month = String(date.month() + 1).padStart(2, '0');

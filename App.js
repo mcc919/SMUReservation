@@ -1,5 +1,5 @@
 import React, { useReducer, useEffect, useState, useContext } from 'react';
-import { ActivityIndicator, View, Button, Text } from 'react-native';
+import { ActivityIndicator, View, Button, Text, Pressable, Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -40,10 +40,22 @@ export default function App() {
   const reservationState = useReservationState(dispatch);
 
   async function logout() {
-    await AsyncStorage.removeItem(accessTokenKey);
-    dispatch({type: 'SIGN_OUT'});
-    setUser({});
-    
+    return (
+      Alert.alert('⚠️', '로그아웃하시겠습니까?', [
+        {
+          text: '확인',
+          onPress: async () => {
+            await AsyncStorage.removeItem(accessTokenKey);
+            dispatch({type: 'SIGN_OUT'});
+            setUser({});
+          }
+        },
+        {
+          text: '취소',
+          onPress: () => {}
+        }
+      ])
+    )
   }
 
   useEffect(() => {
@@ -68,11 +80,9 @@ export default function App() {
   const Tab = createBottomTabNavigator();
 
   const renderLogoutButton = () => (
-    <Button 
-      title="로그아웃" 
-      onPress={logout} 
-      color="#007AFF" // 버튼 색상 변경x
-    />
+    <Pressable onPress={logout} style={{ marginLeft: 10 }}>
+      <MaterialIcons name="logout" size={24} color='#007AFF'/>
+    </Pressable>
   );
 
   const TabsComponents = () => {

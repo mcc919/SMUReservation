@@ -6,8 +6,6 @@ import styles from '../constants/ReservationScreenStyles';
 import ReservationContext from '../context/ReservationContext';
 //import { getRecords } from '../screens/RecordsScreen';
 
-const INITIALIZING_TIME = 22;
-
 export function useReservationState(dispatch) {
     //const [availableRooms, setAvailableRooms] = useState([]);   // 서버로부터 받아온 room 리스트 (사용불가한 방도 있음...)
     const [modalVisible, setModalVisible] = useState(false);    // 모달창 표시 여부
@@ -233,7 +231,7 @@ export function useReservationState(dispatch) {
       const today = getKoreanTime();
       console.log(today);
       let key = 0;
-      if (today.hour() < 22) {
+      if (today.hour() < openHour) {
         let key = (today.hour() - 8) * 4;
         key = key + Math.floor(today.minute() / 15);
       }
@@ -277,7 +275,7 @@ export function useReservationState(dispatch) {
       console.log('reservationinfogroup: ', reservationInfoGroup);
     }
 
-    const handleReservation = async (userId) => {
+    const handleReservation = async (userId, selectedRoom) => {
       console.log('handleReservation 호출됨\nselectedTimeslotKey: ', selectedTimeslotKey);
       if (selectedTimeslotKey.length === 0) {
         console.log('예약할 시간대를 선택해주세요.');
@@ -293,6 +291,7 @@ export function useReservationState(dispatch) {
         return;
       } else {
         const today = getReservationDay(openHour);
+        console.log('예약하고자 하는 날짜: ', today);
         
         const startHour = String(Math.floor(selectedTimeslotKey[0] / 4) + 8).padStart(2, '0');
         const startMinute = String((selectedTimeslotKey[0] % 4) * 15).padStart(2, '0');
@@ -311,6 +310,8 @@ export function useReservationState(dispatch) {
         //console.log('ddfdfdf', availableRooms.find((room) => room.id === selectedRoom));
         const roomNumber = availableRooms.find((room) => room.id === selectedRoom)?.number || null;
         try {
+          if (!dispatch)
+            console.log('dispatch is undefined');
           const response = await apiRequest('reservations', {
             method: 'POST',
             headers: {
@@ -329,22 +330,29 @@ export function useReservationState(dispatch) {
           if (!response.ok) {
             Alert.alert('예약 실패...🥺', result.message), [{
               text: '확인',
-              onPress: () => setModalVisible(false),
+              onPress: () => {
+                setModalVisible(false);
+                setSelectedRoom(null)
+                setSelectedTimeslotKey([]);
+                setReservedTimeslotKey([]);
+                setReservationInfoGroup([]);
+              }
             }]
           } else {
+            await loadReservationInfo(selectedRoom);
             Alert.alert('예약되었습니다! ☺️', `${today}\n${startHour}:${startMinute}:00 ~ ${endHour}:${endMinute}:00\n연습실: ${roomNumber}`, [
               {
                 text: '확인',
                 onPress: () => {
                   setModalVisible(false);
-                  //getRecords()
+                  setSelectedRoom(null)
+                  setSelectedTimeslotKey([]);
+                  setReservedTimeslotKey([]);
+                  setReservationInfoGroup([]);
                 }
               },
             ]);
           }
-          setSelectedRoom(null)
-          setSelectedTimeslotKey([]);
-          setReservationInfoGroup([]);
         } catch (e) {
           console.log(e);
         }
@@ -357,27 +365,25 @@ export function useReservationState(dispatch) {
       initializeTimeslots();
     }, [selectedTimeslotKey]);
 
-    
-      return {
-        modalVisible,
-        selectedRoom,
-        timeslots,
-        reservationInfo,
-        reservedTimeslotKey,
-        selectedTimeslotKey,
-        reservationInfoGroup,
-        passedTimeslotKey,
-        setPassedTimeslotKey,
-        setSelectedTimeslotKey,
-        setModalVisible,
-        setSelectedRoom,
-        setReservedTimeslotKey,
-        fetchRooms,
-        loadReservationInfo,
-        checkReservedTimeslotKey,
-        initializeTimeslots,
-        handleReservation,
-        setReservationInfoGroup
-        
+    return {
+      modalVisible,
+      selectedRoom,
+      timeslots,
+      reservationInfo,
+      reservedTimeslotKey,
+      selectedTimeslotKey,
+      reservationInfoGroup,
+      passedTimeslotKey,
+      setPassedTimeslotKey,
+      setSelectedTimeslotKey,
+      setModalVisible,
+      setSelectedRoom,
+      setReservedTimeslotKey,
+      fetchRooms,
+      loadReservationInfo,
+      checkReservedTimeslotKey,
+      initializeTimeslots,
+      handleReservation,
+      setReservationInfoGroup 
     };
 }

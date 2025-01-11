@@ -41,6 +41,7 @@ export async function apiRequest(endpoint, options = {}, dispatch) {
         //     message: '서버가 응답하지 않습니다.'
         // });
         dispatch({type: 'SIGN_OUT'});
+        console.log('apiRequest 함수에서 dispatch 이후에 실행이 되는지');
     } finally {
         clearTimeout(timeoutId);
     }
