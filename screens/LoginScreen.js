@@ -13,17 +13,19 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '@env';
 import UserContext from '../context/UserContext';
+import { useAuth } from '../context/AuthContext';
 import styles from '../constants/styles';
 
 import { LOGIN_WAITING_TIME } from '../constants/settings';
 import { accessTokenKey } from '../constants/keys';
 
-export default function LoginScreen({ navigation, dispatch }) {
+export default function LoginScreen({ navigation }) {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  const { state, dispatch } = useAuth();
   const { user , setUser } = useContext(UserContext);
 
   const signIn = async () => {

@@ -3,10 +3,12 @@ import { useState, useEffect, useContext } from 'react'
 import { getReservationDay, getDate, getTime, getKoreanTime } from '../utils/utils'
 import { apiRequest } from "../utils/api";
 import styles from '../constants/ReservationScreenStyles';
+
+import { useAuth } from '../context/AuthContext';
 import ReservationContext from '../context/ReservationContext';
 //import { getRecords } from '../screens/RecordsScreen';
 
-export function useReservationState(dispatch) {
+export function useReservationState() {
     //const [availableRooms, setAvailableRooms] = useState([]);   // 서버로부터 받아온 room 리스트 (사용불가한 방도 있음...)
     const [modalVisible, setModalVisible] = useState(false);    // 모달창 표시 여부
     const [selectedRoom, setSelectedRoom] = useState(null);     // 사용자가 예약하고자 하는 room의 id
@@ -17,6 +19,7 @@ export function useReservationState(dispatch) {
     const [selectedTimeslotKey, setSelectedTimeslotKey] = useState([]);   // modal창에서 사용자가 선택한 timeslot
     const [passedTimeslotKey, setPassedTimeslotKey] = useState(null);     // 이미 지나간 시간은 예약 못함
 
+    const { state, dispatch } = useAuth();
     const { availableRooms, setAvailableRooms } = useContext(ReservationContext);
     const { openHour, setOpenHour } = useContext(ReservationContext);
 
@@ -26,7 +29,7 @@ export function useReservationState(dispatch) {
         const response = await apiRequest('rooms', { 
           method: 'GET',
           'Content-Type': 'application/json',
-        }, dispatch);
+        });
         
         if (!response.ok) {
           console.log('방 목록을 불러오는데 실패하였습니다.')
@@ -56,7 +59,7 @@ export function useReservationState(dispatch) {
         try {
             const today = getReservationDay(openHour);
             const url = `/reservations/room/${roomId}/date/${today}`;
-            const response = await apiRequest(url, {}, dispatch);
+            const response = await apiRequest(url, {});
 
             const result = await response.json();
             if (!response.ok) {
@@ -81,7 +84,7 @@ export function useReservationState(dispatch) {
       if (reservationGroup) {
         console.log('t:', reservationGroup);
         try {
-          const response = await apiRequest(`/user/${reservationGroup.info.user_id}`, dispatch);
+          const response = await apiRequest(`/user/${reservationGroup.info.user_id}`);
           const result = await response.json();
           if (!response.ok) {
             console.log(result.message);
@@ -322,7 +325,7 @@ export function useReservationState(dispatch) {
               startTime: startTime,
               endTime: endTime
             })
-          }, dispatch);
+          });
 
           console.log(response);
           const result = await response.json()

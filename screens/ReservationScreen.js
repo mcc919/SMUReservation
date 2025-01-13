@@ -7,10 +7,11 @@ import { Pressable, ActivityIndicator } from 'react-native';
 import { Modal } from 'react-native';
 import { getReservationDay } from '../utils/utils';
 import { useReservationState } from '../hooks/useReservationState';
+import { useAuth } from '../context/AuthContext';
 import UserContext from '../context/UserContext';
 import ReservationContext from '../context/ReservationContext';
 
-export default function ReservationScreen({ navigation, dispatch }) {
+export default function ReservationScreen({ navigation }) {
 
   const [isLoading, setIsLoading] = useState(false);
   const {
@@ -35,12 +36,13 @@ export default function ReservationScreen({ navigation, dispatch }) {
     setReservationInfoGroup
   } = useReservationState(dispatch);
 
+  const { state, dispatch } = useAuth();
   const { user, setUser } = useContext(UserContext);
   const { availableRooms, setAvailableRooms } = useContext(ReservationContext);
 
   const getUserdata = async () => {
     try {
-      const response = await apiRequest('/validateToken', {}, dispatch);
+      const response = await apiRequest('/validateToken', {});
       if (!response.ok) {
         console.log(response.status);
         dispatch({ type: 'SIGN_OUT'});

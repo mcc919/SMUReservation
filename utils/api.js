@@ -5,23 +5,25 @@ import { WAITING_TIME } from "../constants/settings";
 import { Alert } from "react-native";
 import RNRestart from 'react-native-restart'
 
-export async function apiRequest(endpoint, options = {}, dispatch) {
-    // if (!dispatch) {
-    //     Alert.alert('dispatch 오류', '앱을 다시 실행시켜주세요', [
-    //         {
-    //             text: '재시작',
-    //             onPress: () => RNRestart.restart()
-    //         }
-    //     ])
-    // }
+//import { useAuth } from "../context/AuthContext";
+
+let globalDispatch;
+
+export function setGlobalDispatch(dispatch) {
+    globalDispatch = dispatch;
+}
+
+export async function apiRequest(endpoint, options = {}) {
+    if (!globalDispatch) {
+        throw new Error('Global dispatch is not set.');
+    }
 
     const token = await AsyncStorage.getItem(accessTokenKey);
     if (!token) {
         console.log('여기... token 불러오기 실패');
         
-    dispatch({ type: 'SIGN_OUT' });
+    globalDispatch({ type: 'SIGN_OUT' });
         return null;
-
     }
 
     const headers = {
@@ -44,7 +46,7 @@ export async function apiRequest(endpoint, options = {}, dispatch) {
 
         if ([401, 403].includes(response.status)) {
             await AsyncStorage.removeItem(accessTokenKey);
-            dispatch({ type: 'SIGN_OUT' });
+            globalDispatch({ type: 'SIGN_OUT' });
         }
 
         return response;
@@ -54,7 +56,7 @@ export async function apiRequest(endpoint, options = {}, dispatch) {
         //     status: null,
         //     message: '서버가 응답하지 않습니다.'
         // });
-        dispatch({type: 'SIGN_OUT'});
+        globalDispatch({type: 'SIGN_OUT'});
         console.log('apiRequest 함수에서 dispatch 이후에 실행이 되는지');
     } finally {
         clearTimeout(timeoutId);
