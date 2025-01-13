@@ -1,13 +1,27 @@
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { API_URL } from "@env"
 import { accessTokenKey } from "../constants/keys"
+import { WAITING_TIME } from "../constants/settings";
+import { Alert } from "react-native";
+import RNRestart from 'react-native-restart'
 
 export async function apiRequest(endpoint, options = {}, dispatch) {
+    // if (!dispatch) {
+    //     Alert.alert('dispatch 오류', '앱을 다시 실행시켜주세요', [
+    //         {
+    //             text: '재시작',
+    //             onPress: () => RNRestart.restart()
+    //         }
+    //     ])
+    // }
+
     const token = await AsyncStorage.getItem(accessTokenKey);
     if (!token) {
         console.log('여기... token 불러오기 실패');
-        dispatch({ type: 'SIGN_OUT' });
+        
+    dispatch({ type: 'SIGN_OUT' });
         return null;
+
     }
 
     const headers = {
@@ -16,7 +30,7 @@ export async function apiRequest(endpoint, options = {}, dispatch) {
     };
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000);
+    const timeoutId = setTimeout(() => controller.abort(), WAITING_TIME);
 
     try {
         const response = await fetch(`${API_URL}/${endpoint}`, {

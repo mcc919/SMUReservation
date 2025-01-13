@@ -49,7 +49,7 @@ export function useReservationState(dispatch) {
     
     // 유저가 선택한 방에 대한 예약 정보를 불러온다.
     const loadReservationInfo = async (roomId) => {
-        console.log(`Reserved room ID: ${roomId}`);
+        console.log(`Selected room ID: ${roomId}`);
         setModalVisible(true);
         setSelectedRoom(roomId);
         checkPassedTimeslotKey();
@@ -111,19 +111,17 @@ export function useReservationState(dispatch) {
 
     // 유저가 모달창에서 예약할 시간대를 선택하면 반영한다.
     const selectTimeslot = (key) => {
-      if (passedTimeslotKey > key) {
-        setSelectedTimeslotKey([]);
+      if (reservedTimeslotKey.includes(key)) {
+        if (selectedTimeslotKey.length === 0)
+          // show whose reservation is
+          checkReservationInfo(key);
+        else
+          setSelectedTimeslotKey([]);
         return;
       }
 
-      if (reservedTimeslotKey.includes(key)) {
-        if (selectedTimeslotKey.length === 0) {
-          // show whose reservation is
-          checkReservationInfo(key);
-        } else {
-          setSelectedTimeslotKey([]);
-        }
-        
+      if (passedTimeslotKey > key) {
+        setSelectedTimeslotKey([]);
         return;
       }
 
@@ -231,8 +229,9 @@ export function useReservationState(dispatch) {
       const today = getKoreanTime();
       console.log(today);
       let key = 0;
+      console.log(openHour);
       if (today.hour() < openHour) {
-        let key = (today.hour() - 8) * 4;
+        key = (today.hour() - 8) * 4;
         key = key + Math.floor(today.minute() / 15);
       }
       console.log('key: ', key);

@@ -15,7 +15,8 @@ import { API_URL } from '@env';
 import UserContext from '../context/UserContext';
 import styles from '../constants/styles';
 
-const accessTokenKey = '@accessTokenKey';
+import { LOGIN_WAITING_TIME } from '../constants/settings';
+import { accessTokenKey } from '../constants/keys';
 
 export default function LoginScreen({ navigation, dispatch }) {
   const [userId, setUserId] = useState('');
@@ -29,7 +30,7 @@ export default function LoginScreen({ navigation, dispatch }) {
     setIsLoading(true);     // 로딩 시작
 
     const controller = new AbortController();
-    const  timeoutId = setTimeout(() => controller.abort(), 3000);
+    const  timeoutId = setTimeout(() => controller.abort(), LOGIN_WAITING_TIME);
     
     try {
       const response = await fetch(`${API_URL}/login`, {
@@ -45,6 +46,7 @@ export default function LoginScreen({ navigation, dispatch }) {
       switch (response.status) {
         case 200:
           result = await response.json();
+          if (!result) console.log('what?');
           console.log('이것이 result입니다.', result);  // FOR DEBUG
           if (result.is_auth) {
             await AsyncStorage.setItem(accessTokenKey, result.access_token);
@@ -58,7 +60,7 @@ export default function LoginScreen({ navigation, dispatch }) {
           setErrorMessage('아이디 또는 비밀번호를 입력해주세요.');
           break;
         case 401:
-          setErrorMessage('아이디 또는 비밀번호가 일치하지 않습 니다.');
+          setErrorMessage('아이디 또는 비밀번호가 일치하지 않습니다.');
           break;
         case 404:
           setErrorMessage('존재하지 않는 사용자입니다. 회원가입을 진행해주세요.');
