@@ -57,7 +57,7 @@ export default function RegisterScreen({ navigation }) {
             keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
         >
             <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-                <View style={styles.inner}>
+                <View style={styles.contentsContainer}>
                     <TextInput
                         style={styles.input}
                         placeholder="학번"

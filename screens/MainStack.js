@@ -28,16 +28,16 @@ function TabsComponents() {
         return (
           Alert.alert('⚠️', '로그아웃하시겠습니까?', [
             {
+                text: '취소',
+                onPress: () => {}
+            },
+            {
               text: '확인',
               onPress: async () => {
                 await AsyncStorage.removeItem(accessTokenKey);
                 dispatch({type: 'SIGN_OUT'});
                 setUser({});
               }
-            },
-            {
-              text: '취소',
-              onPress: () => {}
             }
           ])
         )
@@ -112,7 +112,10 @@ export default function MainStack({ isAuthenticated }) {
                 <Stack.Screen
                     name="LoginScreen"
                     component={LoginScreen}
-                    options={{ title: '로그인' }}
+                    options={{
+                        title: '로그인',
+                        headerShown: false,
+                    }}
                 />
                 <Stack.Screen
                     name="RegisterScreen"

@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+
 import { API_URL } from '@env';
 import { apiRequest } from '../utils/api';
 import styles from '../constants/ReservationScreenStyles';
@@ -10,6 +12,7 @@ import { useReservationState } from '../hooks/useReservationState';
 import { useAuth } from '../context/AuthContext';
 import UserContext from '../context/UserContext';
 import ReservationContext from '../context/ReservationContext';
+import { SMU_COLORS } from '../constants/smuColors';
 
 export default function ReservationScreen({ navigation }) {
 
@@ -83,9 +86,11 @@ export default function ReservationScreen({ navigation }) {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(!modalVisible)}>
         <View style={styles.modalView}>
-          <Text style={styles.modalRoomNumberText}>{
-            availableRooms.map((room) => room.id === selectedRoom ? room.number : null)
-          }</Text>
+          <View style={styles.modalRoomNumberContainer}>
+            <Text style={styles.modalRoomNumberText}>{
+              availableRooms.map((room) => room.id === selectedRoom ? room.number : null)
+            }</Text>
+          </View>
           <View style={styles.modalTimeslotContainer}>
             {timeslots}
           </View>
@@ -110,6 +115,16 @@ export default function ReservationScreen({ navigation }) {
                 setReservationInfoGroup([]);
               }}>
               <Text>닫기</Text>
+            </Pressable>
+            <Pressable
+              style={{...styles.modalButton, marginLeft: 40 }}
+              onPress={() => {
+                setReservedTimeslotKey([]);
+                setSelectedTimeslotKey([]);
+                setReservationInfoGroup([]);
+                loadReservationInfo(selectedRoom);
+              }}>
+              <MaterialIcons name="refresh" size={24} color="black" />
             </Pressable>
           </>
           ) : (

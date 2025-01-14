@@ -1,11 +1,18 @@
 import { StyleSheet } from 'react-native';
+import { SMU_COLORS } from './smuColors';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  inner: {
+  imageStyle: {
+    flex: 1,
+    paddingTop: 20,
+    resizeMode: 'contain',
+    width: '100%'
+  },
+  contentsContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',

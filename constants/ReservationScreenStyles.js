@@ -1,11 +1,14 @@
 import { StyleSheet } from "react-native";
+import { SMU_COLORS } from "./smuColors";
 
 const timeslot = {
     width: "20%",
     height: 20,
     margin: 5,
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: SMU_COLORS.SMDarkgray
 };
 
 const styles = StyleSheet.create({
@@ -29,10 +32,11 @@ const styles = StyleSheet.create({
         //elevation: 5, // Android에서 그림자 효과
     },
     modalTimeslotContainer: {
-        backgroundColor: '#F5F5F5',
-        flex: 7,
+        //backgroundColor: '#F5F5F5',
+        flex: 6,
         alignItems: "center",
         justifyContent: "center",
+        paddingBottom: 30,
     },
     timeslotRow: {
         flexDirection: "row",
@@ -40,39 +44,42 @@ const styles = StyleSheet.create({
     },
     timeslot: {
         ...timeslot,
-        backgroundColor: '#F5F5DC',
-        borderColor: "#DCDCDC"
+        //backgroundColor: '#F5F5DC',
+        backgroundColor: SMU_COLORS.yellow,
     },
     timeslotOccupied: {
         ...timeslot,
         backgroundColor: "#F28B82",
-        borderColor: "#D46960",
-        borderWidth: 1
+        //backgroundColor: SMU_COLORS.red,
     },
     timeslotSelected: {
         ...timeslot,
-        backgroundColor: "#C8F2C2",
-        borderWidth: 2,
-        borderColor: "#82C091"
+        //backgroundColor: "#C8F2C2",
+        backgroundColor: SMU_COLORS.green,
     },
     timeslotPassed: {
         ...timeslot,
-        backgroundColor:"#E8EAED",
-        borderColor: "#BDC1C6",
-        borderWidth: 1,
+        //backgroundColor:"#E8EAED",
+        backgroundColor: SMU_COLORS.SMLightgray,
     },
     modalButtonContainer: {
-        backgroundColor: "#EFEFEF",
         flex: 1,
         flexDirection: "row",
         justifyContent: "space-around",
         alignItems: 'center',
-        width: "50%",
+        width: "90%",
+        paddingBottom: 20,
     },
     modalButton: {
-        backgroundColor: "#A5D8FF",
+        //backgroundColor: "#A5D8FF",
+        backgroundColor: SMU_COLORS.green,
         padding: 20,
         borderRadius: 20
+    },
+    modalRoomNumberContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     modalRoomNumberText: {
         fontSize: 30,

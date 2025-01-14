@@ -9,6 +9,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Platform,
+  Image
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '@env';
@@ -93,38 +94,41 @@ export default function LoginScreen({ navigation }) {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
     >
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-        <View style={styles.inner}>
-          <TextInput
-            style={styles.input}
-            placeholder="학번"
-            value={userId}
-            onChangeText={setUserId}
-            autoCapitalize="none"
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="비밀번호"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-          {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
-          {isLoading ? (
-            <ActivityIndicator size="large" color="#3b82f6" />
-          ) : (
-            <>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={signIn}
-              disabled={isLoading} // 로딩 중 버튼 비활성화
-            >
-              <Text style={styles.buttonText}>로그인</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('RegisterScreen')}>
-                <Text style={styles.link}>계정이 없으신가요? 회원가입</Text>
-            </TouchableOpacity>
-          </>
-          )}
+        <View style={{ flex: 1 }}>
+          <Image style={styles.imageStyle} source={require('../assets/smu_logo.png')}/>
+          <View style={styles.contentsContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="학번"
+              value={userId}
+              onChangeText={setUserId}
+              autoCapitalize="none"
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="비밀번호"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+            />
+            {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+            {isLoading ? (
+              <ActivityIndicator size="large" color="#3b82f6" />
+            ) : (
+              <>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={signIn}
+                disabled={isLoading} // 로딩 중 버튼 비활성화
+              >
+                <Text style={styles.buttonText}>로그인</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('RegisterScreen')}>
+                  <Text style={styles.link}>계정이 없으신가요? 회원가입</Text>
+              </TouchableOpacity>
+            </>
+            )}
+          </View>
         </View>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>

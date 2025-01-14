@@ -1,5 +1,5 @@
 import React, { useReducer, useEffect, useState, useContext } from 'react';
-import { ActivityIndicator, View, Button, Text, Pressable, Alert } from 'react-native';
+import { SafeAreaView, ActivityIndicator, View, Button, Text, Pressable, Alert, StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -65,12 +65,23 @@ export default function App() {
 
 
   return (
-    <AuthProvider>
-      <UserProvider>
-        <ReservationProvider>
-          <AppContent />
-        </ReservationProvider>
-      </UserProvider>
-    </AuthProvider>
+    <SafeAreaView style={{
+        flex: 1,
+        backgroundColor: '#ffffff',
+        paddingTop: StatusBar.currentHeight || 0, // StatusBar 높이를 안전하게 추가
+      }}
+    >
+      {/* <StatusBar
+        barStyle="light-content" // 또는 'light-content'
+        backgroundColor="#ffffff" // 원하는 배경색
+      /> */}
+      <AuthProvider>
+        <UserProvider>
+          <ReservationProvider>
+            <AppContent />
+          </ReservationProvider>
+        </UserProvider>
+      </AuthProvider>
+    </SafeAreaView>
   );
 }
