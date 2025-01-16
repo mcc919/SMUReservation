@@ -114,8 +114,9 @@ export default function RecordsScreen() {
                             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                             body: `reservation_id=${reservationId}`,
                         });
+                        const result = await response.json()
                         if (response.ok) {
-                            Alert.alert('취소 완료', '선택하신 예약이 취소되었습니다.', [
+                            Alert.alert('취소 완료', result.message, [
                                 {
                                     text: '확인',
                                     onPress: getRecords,  // 예약 목록 다시 불러오기
@@ -123,7 +124,7 @@ export default function RecordsScreen() {
                             ]);
                         } else {
                             console.error('예약 취소 실패');
-                            Alert.alert('취소 실패', '예약 취소에 실패하였습니다.', [
+                            Alert.alert('취소 실패', result.message, [
                                 {
                                     text: '확인',
                                     onPress: getRecords,  // 예약 목록 다시 불러오기

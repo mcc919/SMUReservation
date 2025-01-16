@@ -281,7 +281,7 @@ export function useReservationState() {
       console.log('handleReservation 호출됨\nselectedTimeslotKey: ', selectedTimeslotKey);
       if (selectedTimeslotKey.length === 0) {
         console.log('예약할 시간대를 선택해주세요.');
-        Alert.alert('오류', '예약할 시간대를 선택해주세요. 🙄', [
+        Alert.alert('오류', '시간대를 선택해주세요. 🙄', [
           {
             text: '확인',
             //onPress: () => (),
@@ -289,7 +289,7 @@ export function useReservationState() {
         ]);
         return;
       } else if (selectedTimeslotKey.length > 4 * 3) {
-        console.log('한 번에 3시간을 초과하여 예약할 수 없습니다.');
+        console.log('18시 이전 예약의 경우 한 번에 3시간을 초과하여 예약할 수 없음.');
         return;
       } else {
         const today = getReservationDay(openHour);
@@ -323,7 +323,8 @@ export function useReservationState() {
               userId: userId,
               roomId: selectedRoom,
               startTime: startTime,
-              endTime: endTime
+              endTime: endTime,
+              date: today
             })
           });
 
@@ -334,7 +335,7 @@ export function useReservationState() {
               text: '확인',
               onPress: () => {
                 setModalVisible(false);
-                setSelectedRoom(null)
+                setSelectedRoom(null);
                 setSelectedTimeslotKey([]);
                 setReservedTimeslotKey([]);
                 setReservationInfoGroup([]);
@@ -346,11 +347,11 @@ export function useReservationState() {
               {
                 text: '확인',
                 onPress: () => {
-                  setModalVisible(false);
-                  setSelectedRoom(null)
-                  setSelectedTimeslotKey([]);
-                  setReservedTimeslotKey([]);
-                  setReservationInfoGroup([]);
+                  // setModalVisible(false);
+                  // setSelectedRoom(null)
+                  // setSelectedTimeslotKey([]);
+                  // setReservedTimeslotKey([]);
+                  // setReservationInfoGroup([]);
                 }
               },
             ]);
