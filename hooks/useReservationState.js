@@ -145,7 +145,7 @@ export function useReservationState() {
 
       // 마지막 키를 선택하면 해당 키를 선택 해제
       if (key === lastKey) {
-        setSelectedTimeslotKey(selectedTimeslotKey.filter((item) => item !== key));
+        setSelectedTimeslotKey([]);
         return;
       }
       
@@ -156,7 +156,8 @@ export function useReservationState() {
       }
       
       // (3시간 내에서 선택시) 연속 선택
-      if (key <= firstKey + 11) {
+      console.log('선택한 키: ', key)
+      if ((key >= 40 && key <= firstKey + 15) || (key < 40 && key <= firstKey + 11)) {
         let tmp = [];
         for (let i=firstKey; i <= key; i++)
           tmp.push(i);
@@ -167,6 +168,8 @@ export function useReservationState() {
         
         return;
       }
+
+   
 
       // 그 외의 경우
       console.log('그외의 경우 발생');    // for debug
@@ -288,10 +291,11 @@ export function useReservationState() {
           },
         ]);
         return;
-      } else if (selectedTimeslotKey.length > 4 * 3) {
-        console.log('18시 이전 예약의 경우 한 번에 3시간을 초과하여 예약할 수 없음.');
-        return;
-      } else {
+      }
+      //else if (selectedTimeslotKey.length > 4 * 3) {
+      //console.log('18시 이전 예약의 경우 한 번에 3시간을 초과하여 예약할 수 없음.');
+      //return;}
+      else {
         const today = getReservationDay(openHour);
         console.log('예약하고자 하는 날짜: ', today);
         
