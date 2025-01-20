@@ -11,7 +11,8 @@ import LoginScreen from './LoginScreen';
 import ReservationScreen from './ReservationScreen';
 import RegisterScreen from './RegisterScreen';
 import RecordsScreen from './RecordsScreen';
-import BoardScreen from './BoardScreen';
+import BoardScreenStack from "./BoardScreenStack";
+//import BoardScreen from './BoardScreen';
 import NotificationsScreen from './NotificationsScreen';
 
 import { useAuth } from "../context/AuthContext";
@@ -64,36 +65,41 @@ function TabsComponents() {
         }}>
         <Tab.Screen name="Reservation" component={ReservationScreen}
             options={{
-            headerTitle: "예약",
-            tabBarIcon: ((color) => (
-                <MaterialIcons name="piano" size={24} color={color} />
-            ))
-            }} />
+                headerTitle: "예약",
+                tabBarIcon: ((color) => (
+                    <MaterialIcons name="piano" size={24} color={color} />
+                ))
+            }}
+        s/>
         <Tab.Screen name="Records" component={RecordsScreen}
             options={{
-            headerTitle: "기록",
-            tabBarIcon: ((color) => (
-                <MaterialIcons name="library-books" size={24} color={color} />
-            ))
-            }} />
-        <Tab.Screen name="Board" component={BoardScreen}
+                headerTitle: "기록",
+                tabBarIcon: ((color) => (
+                    <MaterialIcons name="library-books" size={24} color={color} />
+                ))
+            }}
+        />
+        <Tab.Screen name="Board" component={BoardScreenStack}
             options={{
-            headerTitle: "건의사항",
-            tabBarIcon: ((color) => (
-                <MaterialIcons name="dashboard" size={24} color={color} />
-            ))
-            }} />
+                headerTitle: "건의사항",
+                headerShown: false,
+                tabBarIcon: ((color) => (
+                    <MaterialIcons name="dashboard" size={24} color={color} />
+                ))
+            }}
+        />
         <Tab.Screen name="Notifications" component={NotificationsScreen}
             options={{
-            headerTitle: "알림",
-            tabBarIcon: ((color) => (
-                <MaterialIcons name="notifications" size={24} color={color} />
-            )),
-            tabBarBadge: 5,
-            tabBarBadgeStyle: {
-                fontSize: 10
-            }
-            }} />
+                headerTitle: "알림",
+                tabBarIcon: ((color) => (
+                    <MaterialIcons name="notifications" size={24} color={color} />
+                )),
+                tabBarBadge: 5,
+                tabBarBadgeStyle: {
+                    fontSize: 10
+                }
+            }}
+        />
         </Tab.Navigator>
     )
 }

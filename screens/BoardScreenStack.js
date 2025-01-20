@@ -1,0 +1,55 @@
+import React from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { MaterialIcons } from '@expo/vector-icons';
+
+import BoardScreen from './BoardScreen';
+import BoardCreateScreen from './BoardCreateScreen.js';
+import BoardDetailScreen from './BoardDetailScreen';
+import { Alert, Button, Pressable, Text } from 'react-native';
+
+
+const Stack = createNativeStackNavigator();
+
+export default function BoardScreenStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="BoardMain"
+        component={BoardScreen}
+        options={{ 
+            title: '건의사항',
+            //headerShown: false
+        }}
+      />
+      <Stack.Screen
+        name="BoardDetail"
+        component={BoardDetailScreen}
+        options={{
+            title: '상세 페이지',
+            //headerShown: false
+        }}
+      />
+      <Stack.Screen
+        name="BoardCreate"
+        component={BoardCreateScreen}
+        options={({navigation, route}) => ({
+            title: '글 쓰기',
+            headerBackTitle: '취소',
+            headerRight: () => (
+                <Button
+                    title="완료"
+                    onPress={() => {
+                        if (route.params?.onComplete) {
+                            route.params.onComplete();
+                        } else {
+                            Alert.alert('⚠️', '완료 버튼이 비활성화되었습니다.');
+                        }
+                    }}
+                />
+            )
+            //headerShown: false
+        })}
+      />
+    </Stack.Navigator>
+  );
+}
