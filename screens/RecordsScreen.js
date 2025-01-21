@@ -3,7 +3,7 @@ import { View, Text, FlatList, Pressable, Alert, ActivityIndicator } from "react
 import { apiRequest } from "../utils/api";
 import { getDate, getTime, getDateTime } from "../utils/utils";
 import UserContext from "../context/UserContext";
-import styles from "../constants/recordScreenStyles";
+import styles from "../constants/RecordScreenStyles";
 import ReservationContext, { useReservationContext } from "../context/ReservationContext";
 import { useFocusEffect } from "@react-navigation/native";
 
