@@ -6,6 +6,9 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 10
     },
+    roomNumberInput: {
+        marginBottom: 10,
+    },
     titleInput: {
         height: 40,
         borderColor: 'gray',

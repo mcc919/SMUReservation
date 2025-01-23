@@ -21,6 +21,8 @@ export function getReservationDay(openHour) {
 }
 
 export function getDateTime(day, option) {
+    if (!day)
+        return null;
     const _day = day.split('-');
 
     if (option === 'ko') {

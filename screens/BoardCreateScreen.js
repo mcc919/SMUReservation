@@ -1,5 +1,5 @@
 import React, { useContext, useLayoutEffect, useState } from 'react';
-import { Alert, View, Text, TextInput } from 'react-native';
+import { Alert, View, Text, TextInput, ActivityIndicator } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 
 import styles from '../constants/BoardCreateScreenStyles';
@@ -11,6 +11,8 @@ export default function BoardCreateScreen({ navigation }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
   const [items, setItems] = useState([]);
+
+  const [isLoading, setIsloading] = useState(false);
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -49,6 +51,7 @@ export default function BoardCreateScreen({ navigation }) {
 
   const handleComplete = async () => {
     if (!value) {
+      console.log('선택한 연습실: ', value);
       Alert.alert('⚠️', '건의하실 연습실을 선택해주세요.');
       return;
     }
@@ -56,6 +59,8 @@ export default function BoardCreateScreen({ navigation }) {
       Alert.alert('⚠️', '제목과 내용을 모두 입력해주세요.');
       return;
     }
+    setIsloading(true);
+    
     console.log('value: ', value);
     // 저장 또는 전송 로직
     console.log(user);
@@ -82,6 +87,7 @@ export default function BoardCreateScreen({ navigation }) {
     } finally {
       setValue(null);
       setItems([]);
+      setIsloading(false);
       navigation.goBack();
     }
   };
@@ -98,7 +104,10 @@ export default function BoardCreateScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      {!isLoading ? (
+        <>
       <DropDownPicker
+        style={styles.roomNumberInput}
         open={open}
         value={value}
         items={items}
@@ -120,6 +129,11 @@ export default function BoardCreateScreen({ navigation }) {
         placeholder='내용을 입력하세요.'
         multiline
       />
+      </>
+      )
+      : (
+        <ActivityIndicator size='large'/>
+      ) }
     </View>
   );
 }

@@ -27,17 +27,15 @@ const styles = StyleSheet.create({
         //padding: 5,
         fontWeight: 'bold',
         color: 'black',
-        paddingBottom: 10,
+        paddingBottom: 5,
     },
     titleText: {
-        paddingVertical: 5,
+        paddingBottom: 5,
         fontWeight: 'bold',
     },
-    contentText: {
-        
-    },
-    statusText: {
-        paddingTop: 5,
+    dateText: {
+        paddingTop: 3,
+        color: SMU_COLORS.SMSilver
     },
     writeButton: {
         position: 'absolute',

@@ -10,6 +10,8 @@ import { getDateTime } from "../utils/utils";
 import styles from "../constants/BoardScreenStyles";
 import { SMU_COLORS } from "../constants/smuColors";
 
+import { SuggestionState } from "../components/SuggestionState";
+
 
 export default function BoardScreen({ navigation }) {
 
@@ -65,24 +67,25 @@ export default function BoardScreen({ navigation }) {
             console.error("Error fetching rooms:", e);
         }
     }
-    const Item = ({ item }) => (
-        <Pressable
-            style={styles.boardContainer}
-            onPress={() => {
-                navigation.navigate('BoardDetail', { item });
-            }}>
-            <View>
-                <Text style={styles.roomNumberText}>{rooms.find((room) => room.id === item["room_id"])?.number || null}</Text>
-                <Text style={styles.titleText}>{item.title}</Text>
-                <Text style={styles.contentText}>{item.content}</Text>
-                <Text style={styles.statusText}>{item.status === 'submitted' ? '제출됨(미확인)' : '기타'}</Text>
-                {/* <Text>작성자: {item.user_id}</Text>
-                <Text>작성된 날짜: {getDateTime(item.created_at)}</Text>
-                <Text>수정된 날짜: {getDateTime(item.edited_at)}</Text> */}
-            </View>
+    const Item = ({ item }) => {
+        
+        return (
+            <Pressable
+                style={styles.boardContainer}
+                onPress={() => {
+                    navigation.navigate('BoardDetail', {id: item.id} );
+                }}>
+                <View>
+                    <Text style={styles.roomNumberText}>{rooms.find((room) => room.id === item["room_id"])?.number || null}</Text>
+                    <Text style={styles.titleText}>{item.title}</Text>
+                    <Text style={styles.contentText}>{item.content}</Text>
+                    <SuggestionState status={item.status} />
+                    <Text style={styles.dateText}>{getDateTime(item.created_at)}</Text>
 
-        </Pressable>
-    )
+                </View>
+
+            </Pressable>
+        )}
 
     const renderItem = ({item}) => (
         <Item item={item}/>
