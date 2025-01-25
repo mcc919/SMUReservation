@@ -21,7 +21,7 @@ export function useReservationState() {
 
     const { state, dispatch } = useAuth();
     const { availableRooms, setAvailableRooms } = useContext(ReservationContext);
-    const { openHour, setOpenHour } = useContext(ReservationContext);
+    const { settings: settings, setSettings: setSettings } = useContext(ReservationContext);
 
     // 방 목록을 불러온다. (예약가능, 수리중, 폐쇄된 방 모두 포함)
     const fetchRooms = async () => {
@@ -57,7 +57,7 @@ export function useReservationState() {
         setSelectedRoom(roomId);
         checkPassedTimeslotKey();
         try {
-            const today = getReservationDay(openHour);
+            const today = getReservationDay(settings.RESERVATION_OPEN_HOUR);
             const url = `/reservations/room/${roomId}/date/${today}`;
             const response = await apiRequest(url, {});
 
@@ -235,8 +235,8 @@ export function useReservationState() {
       const today = getKoreanTime();
       console.log(today);
       let key = 0;
-      console.log(openHour);
-      if (today.hour() < openHour) {
+      console.log(settings.RESERVATION_OPEN_HOUR);
+      if (today.hour() < settings.RESERVATION_OPEN_HOUR) {
         key = (today.hour() - 8) * 4;
         key = key + Math.floor(today.minute() / 15);
       }
@@ -296,7 +296,7 @@ export function useReservationState() {
       //console.log('18시 이전 예약의 경우 한 번에 3시간을 초과하여 예약할 수 없음.');
       //return;}
       else {
-        const today = getReservationDay(openHour);
+        const today = getReservationDay(settings.RESERVATION_OPEN_HOUR);
         console.log('예약하고자 하는 날짜: ', today);
         
         const startHour = String(Math.floor(selectedTimeslotKey[0] / 4) + 8).padStart(2, '0');

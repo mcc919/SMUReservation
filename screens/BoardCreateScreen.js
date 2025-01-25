@@ -1,15 +1,16 @@
-import React, { useContext, useLayoutEffect, useState } from 'react';
-import { Alert, View, Text, TextInput, ActivityIndicator } from 'react-native';
+import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
+import { Alert, View, Text, TextInput, ActivityIndicator, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 
 import styles from '../constants/BoardCreateScreenStyles';
 import { apiRequest } from '../utils/api';
 import UserContext from '../context/UserContext';
+import ReservationContext from '../context/ReservationContext';
 import { useFocusEffect } from '@react-navigation/native';
 
 export default function BoardCreateScreen({ navigation }) {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(null);
+  const [selectedRoom, setSelectedRoom] = useState(null);
   const [items, setItems] = useState([]);
 
   const [isLoading, setIsloading] = useState(false);
@@ -18,6 +19,7 @@ export default function BoardCreateScreen({ navigation }) {
   const [content, setContent] = useState('');
 
   const {user, setUser} = useContext(UserContext);
+  const { settings: settings, setSettings: setSettings } = useContext(ReservationContext);
 
   const loadRoomInfo = async () => {
     try {
@@ -50,8 +52,8 @@ export default function BoardCreateScreen({ navigation }) {
   }
 
   const handleComplete = async () => {
-    if (!value) {
-      console.log('선택한 연습실: ', value);
+    if (!selectedRoom) {
+      console.log('선택한 연습실: ', selectedRoom);
       Alert.alert('⚠️', '건의하실 연습실을 선택해주세요.');
       return;
     }
@@ -59,9 +61,17 @@ export default function BoardCreateScreen({ navigation }) {
       Alert.alert('⚠️', '제목과 내용을 모두 입력해주세요.');
       return;
     }
+    if (title >= settings.BOARD_MAX_TITLE_LENGTH) {
+      Alert.alert('⚠️', `제목의 길이가 ${settings.BOARD_MAX_TITLE_LENGTH}자를 초과하였습니다.`);
+      return;
+    }
+    if (content >= settings.BOARD_MAX_CONTENT_LENGTH) {
+      Alert.alert('⚠️', `본문의 길이가 ${settings.BOARD_MAX_CONTENT_LENGTH}자를 초과하였습니다.`);
+      return;
+    }
     setIsloading(true);
     
-    console.log('value: ', value);
+    console.log('value: ', selectedRoom);
     // 저장 또는 전송 로직
     console.log(user);
     try {
@@ -72,9 +82,9 @@ export default function BoardCreateScreen({ navigation }) {
         },
         body: JSON.stringify({
           userId: user.user_id,
-          roomId: value,
-          title: title,
-          content: content
+          roomId: selectedRoom,
+          title: title.trim(),
+          content: content.trim()
         })
       })
       const result = await response.json();
@@ -85,16 +95,20 @@ export default function BoardCreateScreen({ navigation }) {
     } catch {
       Alert.alert('확인', '알 수 없는 오류로 업로드에 실패하였습니다.');
     } finally {
-      setValue(null);
+      setSelectedRoom(null);
       setItems([]);
       setIsloading(false);
       navigation.goBack();
     }
   };
 
+  useEffect(() => {
+    console.log('selectedRoom updated: ', selectedRoom);
+  }, [selectedRoom]);
+
   useLayoutEffect(() => {
     navigation.setParams({ onComplete: handleComplete });
-  }, [navigation, title, content]);
+  }, [navigation, title, content, selectedRoom]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -103,37 +117,56 @@ export default function BoardCreateScreen({ navigation }) {
   )
 
   return (
-    <View style={styles.container}>
-      {!isLoading ? (
-        <>
-      <DropDownPicker
-        style={styles.roomNumberInput}
-        open={open}
-        value={value}
-        items={items}
-        setOpen={setOpen}
-        setValue={setValue}
-        setItems={setItems}
-        placeholder="연습실을 선택하세요."
-      />
-      <TextInput
+    <TouchableWithoutFeedback onPress={() => {
+      Keyboard.dismiss();
+      setOpen(false)
+    }}>
+      <View style={styles.container}>
+        {!isLoading ? (
+          <>
+        <DropDownPicker
+          style={styles.roomNumberInput}
+          open={open}
+          value={selectedRoom}
+          items={items}
+          setOpen={setOpen}
+          setValue={setSelectedRoom}
+          setItems={setItems}
+          onOpen={() => Keyboard.dismiss()}
+          onChangeValue={(value) => {
+            setSelectedRoom(value)
+            console.log('변경감지: onchangevalue가 있어야하나?');
+          }}
+          placeholder="연습실을 선택하세요."
+        />
+        
+
+        <TextInput
         style={styles.titleInput}
         onChangeText={setTitle}
         value={title}
+        maxLength={settings.BOARD_MAX_TITLE_LENGTH}
         placeholder='제목을 입력하세요.'
-      />
-      <TextInput
-        style={styles.contentInput}
-        onChangeText={setContent}
-        value={content}
-        placeholder='내용을 입력하세요.'
-        multiline
-      />
-      </>
-      )
-      : (
-        <ActivityIndicator size='large'/>
-      ) }
-    </View>
+        onFocus={() => setOpen(false)}
+        />
+        <TextInput
+          style={styles.contentInput}
+          onChangeText={setContent}
+          value={content}
+          maxLength={settings.BOARD_MAX_CONTENT_LENGTH}
+          placeholder='내용을 입력하세요.'
+          multiline
+          onFocus={() => setOpen(false)}
+        />
+        <View style={styles.lengthBox}>
+          <Text>{`\n(${content.trim().length}/${settings.BOARD_MAX_CONTENT_LENGTH})`}</Text>
+        </View>
+        </>
+        )
+        : (
+          <ActivityIndicator size='large'/>
+        ) }
+      </View>
+      </TouchableWithoutFeedback>
   );
 }

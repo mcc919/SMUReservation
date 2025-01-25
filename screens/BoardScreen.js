@@ -68,7 +68,9 @@ export default function BoardScreen({ navigation }) {
         }
     }
     const Item = ({ item }) => {
-        
+        const maxLength = 70;
+        const text = item.content.length >= maxLength ? item.content.slice(0, maxLength) + '...': item.content;
+        const updated_at = item.status_updated_at === item.created_at ? '읽지 않음' : getDateTime(item.status_updated_at);
         return (
             <Pressable
                 style={styles.boardContainer}
@@ -78,10 +80,10 @@ export default function BoardScreen({ navigation }) {
                 <View>
                     <Text style={styles.roomNumberText}>{rooms.find((room) => room.id === item["room_id"])?.number || null}</Text>
                     <Text style={styles.titleText}>{item.title}</Text>
-                    <Text style={styles.contentText}>{item.content}</Text>
+                    <Text style={styles.contentText}>{text}</Text>
+                    <Text style={{...styles.dateText, marginTop: 5}}>작성된 일시: {getDateTime(item.created_at)}</Text>
                     <SuggestionState status={item.status} />
-                    <Text style={styles.dateText}>{getDateTime(item.created_at)}</Text>
-
+                    <Text style={styles.dateText}>마지막 답변: {updated_at}</Text>
                 </View>
 
             </Pressable>

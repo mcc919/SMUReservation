@@ -6,6 +6,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import { MaterialIcons } from "@expo/vector-icons";
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 import LoginScreen from './LoginScreen';
 import ReservationScreen from './ReservationScreen';
@@ -13,7 +14,7 @@ import RegisterScreen from './RegisterScreen';
 import RecordsScreen from './RecordsScreen';
 import BoardScreenStack from "./BoardScreenStack";
 //import BoardScreen from './BoardScreen';
-import NotificationsScreen from './NotificationsScreen';
+import SettingsScreen from './Settings';
 
 import { useAuth } from "../context/AuthContext";
 import { accessTokenKey } from "../constants/keys";
@@ -81,23 +82,23 @@ function TabsComponents() {
         />
         <Tab.Screen name="Board" component={BoardScreenStack}
             options={{
-                headerTitle: "건의사항",
+                headerTitle: "건의사항 게시판",
                 headerShown: false,
                 tabBarIcon: ((color) => (
                     <MaterialIcons name="dashboard" size={24} color={color} />
                 ))
             }}
         />
-        <Tab.Screen name="Notifications" component={NotificationsScreen}
+        <Tab.Screen name="Settings" component={SettingsScreen}
             options={{
-                headerTitle: "알림",
+                headerTitle: "설정",
                 tabBarIcon: ((color) => (
-                    <MaterialIcons name="notifications" size={24} color={color} />
+                    <Ionicons name="person" size={24} color={color} />
                 )),
-                tabBarBadge: 5,
-                tabBarBadgeStyle: {
-                    fontSize: 10
-                }
+                // tabBarBadge: 5,
+                // tabBarBadgeStyle: {
+                //     fontSize: 10
+                // }
             }}
         />
         </Tab.Navigator>

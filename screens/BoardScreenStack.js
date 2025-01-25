@@ -17,7 +17,7 @@ export default function BoardScreenStack() {
         name="BoardMain"
         component={BoardScreen}
         options={{ 
-            title: '건의사항',
+            title: '건의사항 게시판',
             //headerShown: false
         }}
       />
@@ -26,6 +26,7 @@ export default function BoardScreenStack() {
         component={BoardDetailScreen}
         options={{
             title: '상세 페이지',
+            headerBackTitle: '뒤로가기',
             //headerShown: false
         }}
       />
