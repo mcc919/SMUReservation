@@ -24,11 +24,26 @@ export default function BoardScreenStack() {
       <Stack.Screen
         name="BoardDetail"
         component={BoardDetailScreen}
-        options={{
+        options={({navigation, route}) => ({
             title: '상세 페이지',
             headerBackTitle: '뒤로가기',
+            headerRight: () => {
+              if (route.params?.isCreateCommentMode)
+                return (
+                  <Button
+                        title="완료"
+                        onPress={() => {
+                            if (route.params?.onComplete) {
+                                route.params.onComplete();
+                            } else {
+                                Alert.alert('⚠️', '완료 버튼이 비활성화되었습니다.');
+                            }
+                        }}
+                  />
+                      )
+              }
             //headerShown: false
-        }}
+        })}
       />
       <Stack.Screen
         name="BoardCreate"

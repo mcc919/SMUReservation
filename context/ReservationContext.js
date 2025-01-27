@@ -13,7 +13,8 @@ const ReservationContext = createContext({
         "RESERVATION_LIMIT_PER_DAY" : 6,
         "RESERVATION_LIMIT_PER_ROOM" : 3,
         "BOARD_MAX_TITLE_LENGTH" : 30,
-        "BOARD_MAX_CONTENT_LENGTH" : 300
+        "BOARD_MAX_CONTENT_LENGTH" : 300,
+        "COMMENT_MAX_CONTENT_LENGTH": 300,
     },
     setSettings: () => {},
 });
@@ -27,7 +28,7 @@ export const ReservationProvider = ({ children }) => {
     useEffect(() => {
         const fetchReservationSettings = async () => {
             try {
-                const response = await fetch(`${API_URL}/reservation_settings`);
+                const response = await fetch(`${API_URL}/settings`);
                 console.log(response);
                 if (response.ok) {
                     const result = await response.json();

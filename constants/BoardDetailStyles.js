@@ -43,6 +43,43 @@ const styles = StyleSheet.create({
         marginTop: 20,
         fontSize: 16,
     },
+    commentCreateContainer: {
+        padding: 10,
+        //backgroundColor: 'lightblue',
+        //justifyContent: 'center',
+        //alignItems: 'center'
+    },
+    stateInput: {
+        marginBottom: 10
+    },
+    commentContentInput: {
+        height: 100,
+        //width: '100%',
+        borderColor: 'gray',
+        borderWidth: 1,
+        paddingHorizontal: 8,
+        textAlignVertical: 'top',
+    },
+
+    commentCreateButtonContainer: {
+        marginBottom: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    commentCreateButton: {
+        width: '50%',
+        height: 50,
+        backgroundColor: '#3b82f6',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 8,
+    },
+    commentCreateButtonText: {
+        fontSize: 18,
+        color: '#ffffff',
+        fontWeight: 'bold',
+    },
+    
 })
 
 export default styles;

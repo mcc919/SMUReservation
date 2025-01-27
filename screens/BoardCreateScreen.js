@@ -13,7 +13,7 @@ export default function BoardCreateScreen({ navigation }) {
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [items, setItems] = useState([]);
 
-  const [isLoading, setIsloading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -45,6 +45,7 @@ export default function BoardCreateScreen({ navigation }) {
           ]
         });
         setItems(_items);
+        console.log(_items);
       }
     } catch (e) {
         console.error("Error fetching rooms:", e);
@@ -69,7 +70,7 @@ export default function BoardCreateScreen({ navigation }) {
       Alert.alert('⚠️', `본문의 길이가 ${settings.BOARD_MAX_CONTENT_LENGTH}자를 초과하였습니다.`);
       return;
     }
-    setIsloading(true);
+    setIsLoading(true);
     
     console.log('value: ', selectedRoom);
     // 저장 또는 전송 로직
@@ -97,7 +98,7 @@ export default function BoardCreateScreen({ navigation }) {
     } finally {
       setSelectedRoom(null);
       setItems([]);
-      setIsloading(false);
+      setIsLoading(false);
       navigation.goBack();
     }
   };
@@ -142,12 +143,12 @@ export default function BoardCreateScreen({ navigation }) {
         
 
         <TextInput
-        style={styles.titleInput}
-        onChangeText={setTitle}
-        value={title}
-        maxLength={settings.BOARD_MAX_TITLE_LENGTH}
-        placeholder='제목을 입력하세요.'
-        onFocus={() => setOpen(false)}
+          style={styles.titleInput}
+          onChangeText={setTitle}
+          value={title}
+          maxLength={settings.BOARD_MAX_TITLE_LENGTH}
+          placeholder='제목을 입력하세요.'
+          onFocus={() => setOpen(false)}
         />
         <TextInput
           style={styles.contentInput}
