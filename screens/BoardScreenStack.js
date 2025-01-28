@@ -5,7 +5,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import BoardScreen from './BoardScreen';
 import BoardCreateScreen from './BoardCreateScreen.js';
 import BoardDetailScreen from './BoardDetailScreen';
-import { Alert, Button, Pressable, Text } from 'react-native';
+import { ActivityIndicator, Alert, Button, Pressable, Text } from 'react-native';
 
 
 const Stack = createNativeStackNavigator();
@@ -28,20 +28,25 @@ export default function BoardScreenStack() {
             title: '상세 페이지',
             headerBackTitle: '뒤로가기',
             headerRight: () => {
-              if (route.params?.isCreateCommentMode)
+              if (route.params?.isCreateCommentMode) {
                 return (
-                  <Button
-                        title="완료"
-                        onPress={() => {
-                            if (route.params?.onComplete) {
-                                route.params.onComplete();
-                            } else {
-                                Alert.alert('⚠️', '완료 버튼이 비활성화되었습니다.');
-                            }
-                        }}
-                  />
-                      )
+                  !route.params?.isLoadingPost ? (
+                    <Button
+                      title="완료"
+                      onPress={() => {
+                          if (route.params?.onComplete) {
+                              route.params.onComplete();
+                          } else {
+                              Alert.alert('⚠️', '완료 버튼이 비활성화되었습니다.');
+                          }
+                        }
+                      }
+                    />) : (
+                    <ActivityIndicator />
+                  )
+                )
               }
+            }
             //headerShown: false
         })}
       />

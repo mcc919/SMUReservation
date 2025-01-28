@@ -1,18 +1,27 @@
 import { StyleSheet } from "react-native";
-import { SMU_COLORS } from "./smuColors";
+import { CUSTOM_COLORS, SMU_COLORS } from "./colors";
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 10,
+        padding: 5,
     },
     boardContainer: {
         flex: 1,
-        backgroundColor: 'lightyellow'
+        paddingTop: 10,
+        paddingBottom: 20,
+        paddingHorizontal: 7,
+        borderRadius: 10,
+        backgroundColor: CUSTOM_COLORS.boardBackground,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 2,
     },
     infoContainer: {
         flex: 1,
-        paddingBottom: 30,
+        paddingBottom: 20,
         //paddingLeft: 20,
         //backgroundColor: '#ddd'
     },
@@ -21,12 +30,41 @@ const styles = StyleSheet.create({
     },
     boardCommentContainer: {
         flex: 1,
+        marginTop: 10,
+        paddingBottom: 15,
+        borderTopColor: SMU_COLORS.SMLightgray,
+        paddingHorizontal: 7,
+        borderRadius: 10,
+        borderTopWidth: 1,
+        backgroundColor: CUSTOM_COLORS.commentBackground,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 2,
     },
     title: {
         fontSize: 20,
+        marginBottom: 20,
     },
     roomNumber: {
         fontSize: 20
+    },
+    writerInfo: {
+        flexDirection:'row',
+        alignItems:'center'
+    },
+    userTag: {
+        fontSize: 12,
+        backgroundColor: CUSTOM_COLORS.user,
+        padding: 5,
+        borderRadius: 20,
+    },
+    adminTag: {
+        fontSize: 12,
+        backgroundColor: CUSTOM_COLORS.admin,
+        padding: 5,
+        borderRadius: 20,
     },
     writer: {
         fontSize: 20,
@@ -40,7 +78,6 @@ const styles = StyleSheet.create({
         color: SMU_COLORS.SMSilver
     },
     content: {
-        marginTop: 20,
         fontSize: 16,
     },
     commentCreateContainer: {
@@ -60,7 +97,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8,
         textAlignVertical: 'top',
     },
-
+    lengthBox: {
+        alignItems: 'flex-end',
+        //justifyContent: 'center',
+        marginTop: -5
+    },
     commentCreateButtonContainer: {
         marginBottom: 20,
         justifyContent: 'center',

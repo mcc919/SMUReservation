@@ -14,7 +14,7 @@ import RegisterScreen from './RegisterScreen';
 import RecordsScreen from './RecordsScreen';
 import BoardScreenStack from "./BoardScreenStack";
 //import BoardScreen from './BoardScreen';
-import SettingsScreen from './Settings';
+import ProfileScreen from './ProfileScreen';
 
 import { useAuth } from "../context/AuthContext";
 import { accessTokenKey } from "../constants/keys";
@@ -89,9 +89,9 @@ function TabsComponents() {
                 ))
             }}
         />
-        <Tab.Screen name="Settings" component={SettingsScreen}
+        <Tab.Screen name="Profile" component={ProfileScreen}
             options={{
-                headerTitle: "설정",
+                headerTitle: "프로필",
                 tabBarIcon: ((color) => (
                     <Ionicons name="person" size={24} color={color} />
                 )),

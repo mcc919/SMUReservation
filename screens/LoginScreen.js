@@ -65,11 +65,10 @@ export default function LoginScreen({ navigation }) {
         case 401:
           setErrorMessage('아이디 또는 비밀번호가 일치하지 않습니다.');
           break;
+        case 403:
+          setErrorMessage('승인 대기 중인 계정입니다. 관리자에게 문의하세요');
         case 404:
           setErrorMessage('존재하지 않는 사용자입니다. 회원가입을 진행해주세요.');
-          break;
-        case 409:
-          setErrorMessage('이미 존재하는 사용자입니다. 관리자에게 문의하세요.');
           break;
         case 500:
           setErrorMessage('서버 내부 오류입니다. 관리자에게 문의하세요.');

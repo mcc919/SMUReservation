@@ -8,7 +8,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Feather from '@expo/vector-icons/Feather';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-import { SMU_COLORS } from "../constants/smuColors";
+import { SMU_COLORS } from "../constants/colors";
 
 export const SuggestionStates = {
     SUBMITTED: { value: "submitted", icon: "📝", label: "제출됨" },

@@ -8,7 +8,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { apiRequest } from "../utils/api";
 import { getDateTime } from "../utils/utils";
 import styles from "../constants/BoardScreenStyles";
-import { SMU_COLORS } from "../constants/smuColors";
+import { SMU_COLORS } from "../constants/colors";
 
 import { SuggestionState } from "../components/SuggestionState";
 

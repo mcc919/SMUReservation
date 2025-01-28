@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native"
-import { SMU_COLORS } from "./smuColors";
+import { SMU_COLORS } from "./colors";
 
 const styles = StyleSheet.create({
     container: {

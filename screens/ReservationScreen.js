@@ -12,7 +12,7 @@ import { useReservationState } from '../hooks/useReservationState';
 import { useAuth } from '../context/AuthContext';
 import UserContext from '../context/UserContext';
 import ReservationContext from '../context/ReservationContext';
-import { SMU_COLORS } from '../constants/smuColors';
+import { SMU_COLORS } from '../constants/colors';
 
 export default function ReservationScreen({ navigation }) {
 

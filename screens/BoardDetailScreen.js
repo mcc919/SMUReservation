@@ -1,6 +1,6 @@
-import React, { useEffect, useContext, useState, useLayoutEffect } from 'react';
+import React, { useEffect, useContext, useState, useLayoutEffect, useRef } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Text, ScrollView, Alert, ActivityIndicator, Pressable, TextInput, Button, TouchableOpacity, Keyboard } from 'react-native';
+import { View, Text, ScrollView, Alert, ActivityIndicator, Pressable, TextInput, Button, TouchableOpacity, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import UserContext from '../context/UserContext';
 import ReservationContext from '../context/ReservationContext';
@@ -11,9 +11,10 @@ import { getDateTime } from '../utils/utils';
 import { suggestionStateList } from '../constants/SuggestionStateList'
 import styles from '../constants/BoardDetailStyles';
 import DropDownPicker from 'react-native-dropdown-picker';
+import { SuggestionState } from '../components/SuggestionState';
 
 export default function BoardDetailScreen({ navigation, route }) {
-  
+  const scrollViewRef = useRef(null);
   const { user, setUser } = useContext(UserContext);
   const { id: boardId } = route.params;
   const { settings, setSettings } = useContext(ReservationContext);
@@ -63,7 +64,6 @@ export default function BoardDetailScreen({ navigation, route }) {
           }])
         )
       } else {
-        console.log(result);
         setBoard(result);
         return;
       }
@@ -90,8 +90,8 @@ export default function BoardDetailScreen({ navigation, route }) {
         }])
       )
     } else {
-      console.log(result);
       setBoardCommentsData(result);
+      scrollViewRef.current?.scrollToEnd({ animated: true });
       return;
     }
   }
@@ -101,11 +101,15 @@ export default function BoardDetailScreen({ navigation, route }) {
     for (let i = 0; i < boardCommentsData.length; i++) {
       tmp.push(
         <View style={styles.boardCommentContainer} key={i}>
-          <Text>{boardCommentsData[i].admin_id}</Text>
-          <Text>{boardCommentsData[i].room_id}</Text>
-          <Text>{boardCommentsData[i].status}</Text>
-          <Text>{boardCommentsData[i].comment}</Text>
-          <Text>{boardCommentsData[i].created_at}</Text>
+          <SuggestionState status={boardCommentsData[i].status} />
+          <View style={{...styles.infoContainer, marginTop: 7}}>
+            <View style={styles.writerInfo}>
+              <Text style={styles.adminTag}>관리자</Text>
+              <Text style={styles.writer}> {boardCommentsData[i].admin_id} {boardCommentsData[i].writer["username_kor"]}</Text>
+            </View>
+            <Text style={styles.createdAt}>{getDateTime(boardCommentsData[i].created_at)}</Text>
+          </View>
+          <Text style={styles.content}>{boardCommentsData[i].comment}</Text>
         </View>
       )
     }
@@ -146,7 +150,12 @@ export default function BoardDetailScreen({ navigation, route }) {
         })
       })
       const result = await response.json();
-      Alert.alert('확인', result.message);
+      if (!response.ok) {
+        Alert.alert('⚠️', result.message);  
+      } else {
+        Alert.alert('✔️', result.message);
+        loadBoardComments();
+      }
     } catch (e) {
       Alert.alert('확인', `요청 전송 중 오류가 발생하였습니다.\n${e}`);
     } finally {
@@ -154,34 +163,32 @@ export default function BoardDetailScreen({ navigation, route }) {
       setIsLoadingPost(false);
       setCommentContent('');
       Keyboard.dismiss();
-      loadBoardComments();
       //navigation.goBack();
     }
   };
 
   useEffect(() => {
     if (board) {
-      console.log('board 변경 감지', board);
       loadBoardComments(boardId);
     }
   }, [board]);
 
   useFocusEffect(
-      React.useCallback(() => {
-        console.log('페이지 집중 감지');
-        loadBoard();
-        loadRoomInfo();
-        setSelectedState(null);
-        setIsCreateCommentMode(false);
-      }, [])
-    )
+    React.useCallback(() => {
+      loadBoard();
+      loadRoomInfo();
+      setCommentContent('');
+      setSelectedState(null);
+      setIsCreateCommentMode(false);
+    }, [])
+  )
 
   useLayoutEffect(() => {
     navigation.setParams({
       isCreateCommentMode: isCreateCommentMode,
       onComplete: handleComplete
     });
-  }, [navigation, commentContent, selectedState, isCreateCommentMode]);
+  }, [navigation, commentContent, selectedState, isCreateCommentMode, isLoadingPost]);
   
   useEffect(() => {
     initializeBoardComments();
@@ -194,12 +201,15 @@ export default function BoardDetailScreen({ navigation, route }) {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 80} // 적절한 값으로 조정
       >
-        <ScrollView style={styles.container}>{
+        <ScrollView ref={scrollViewRef} style={styles.container}>{
           board ? (
             <>
               <View style={styles.boardContainer}>
                 <View style={styles.infoContainer}>
-                  <Text style={styles.writer}>{board.user_id} {board.user.username_kor}</Text>
+                  <View style={styles.writerInfo}>
+                    <Text style={board.user.role==='user' ? styles.userTag : styles.adminTag}>{board.user.role==='admin' ? '관리자' : '학생'}</Text>
+                    <Text style={styles.writer}> {board.user_id} {board.user.username_kor}</Text>
+                  </View>
                   <Text style={styles.createdAt}>{getDateTime(board.created_at)}</Text>
                   {
                     getDateTime(board.created_at) !== getDateTime(board.edited_at) ?
@@ -230,6 +240,7 @@ export default function BoardDetailScreen({ navigation, route }) {
                   setOpen={setOpen}
                   setValue={setSelectedState}
                   placeholder="상태 선택"
+                  dropDownDirection="TOP"
                   
                 />
                 <TextInput
@@ -239,16 +250,21 @@ export default function BoardDetailScreen({ navigation, route }) {
                   value={commentContent}
                   multiline
                 />
+                <View style={styles.lengthBox}>
+                  <Text>{`\n(${commentContent.trim().length}/${settings.COMMENT_MAX_CONTENT_LENGTH})`}</Text>
+                </View>
               </View>
             ) : (
-              <View style={styles.commentCreateButtonContainer}>
-                <TouchableOpacity
-                  style={styles.commentCreateButton}
-                  onPress={() => setIsCreateCommentMode(true)}
-                >
-                  <Text style={styles.commentCreateButtonText}>답변하기</Text>
-                </TouchableOpacity>
-              </View>
+              user.role === 'admin' ? (
+                <View style={styles.commentCreateButtonContainer}>
+                  <TouchableOpacity
+                    style={styles.commentCreateButton}
+                    onPress={() => setIsCreateCommentMode(true)}
+                  >
+                    <Text style={styles.commentCreateButtonText}>답변하기</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : <></>
             )
           }
       </KeyboardAvoidingView>

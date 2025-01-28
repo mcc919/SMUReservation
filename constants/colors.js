@@ -12,3 +12,10 @@ export const SMU_COLORS = {
     orange: '#F9A13A',
     yellow: '#FFDF1C'
 }
+
+export const CUSTOM_COLORS = {
+    user: 'lightgreen',
+    admin: 'tomato',
+    commentBackground: '#D0E8C5',
+    boardBackground: '#FFF8DE',
+}
