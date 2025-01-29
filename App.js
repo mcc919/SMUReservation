@@ -2,7 +2,7 @@ import React, { useReducer, useEffect, useState, useContext } from 'react';
 import { SafeAreaView, ActivityIndicator, View, Button, Text, Pressable, Alert, StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { MenuProvider } from 'react-native-popup-menu';
 import MainStack from './screens/MainStack';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -65,6 +65,7 @@ export default function App() {
 
 
   return (
+    <MenuProvider>
     <SafeAreaView style={{
         flex: 1,
         backgroundColor: '#ffffff',
@@ -83,5 +84,6 @@ export default function App() {
         </UserProvider>
       </AuthProvider>
     </SafeAreaView>
+    </MenuProvider>
   );
 }

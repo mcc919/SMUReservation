@@ -50,6 +50,18 @@ export const styles = StyleSheet.create({
         marginLeft: 10,
         marginBottom: 10
     },
+    menuOptionsStyle: {
+        marginLeft: 130,
+        marginTop: -30,
+        width: 150,
+        borderWidth: 1,
+        backgroundColor: "white",
+        elevation: 5,
+        shadowColor: "#000",
+        shadowOffset: { width: 2, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 3,
+    },
     profiles: {
         marginBottom: 20,
         backgroundColor: '#fff',
