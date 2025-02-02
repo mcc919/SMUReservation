@@ -107,7 +107,7 @@ export default function ProfileScreen() {
                             <Text style={profile.role === 'admin' ? styles.adminTag : styles.userTag}>{profile.role === 'admin' ? '관리자' : '학생'}</Text>
                             <Text style={styles.profileText}> {profile.username_kor}</Text>
                         </View>            
-                        <Text style={styles.profileText}>{profile.department} {profile.grade}학년 {profile.enrollment_status}중</Text>
+                        <Text style={{...styles.profileText, marginTop: 5}}>{profile.department} {profile.grade}학년 {profile.enrollment_status}중</Text>
                         <Text style={styles.profileText}>{profile.email}</Text>
                     </View>
                 </MenuTrigger>

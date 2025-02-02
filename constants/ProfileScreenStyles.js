@@ -4,6 +4,7 @@ import { SMU_COLORS, CUSTOM_COLORS } from "./colors";
 export const styles = StyleSheet.create({
     container: {
         flex: 1,
+        paddingHorizontal: 15,
     },
     myprofileContainer: {
         padding: 20,
@@ -74,7 +75,7 @@ export const styles = StyleSheet.create({
         maxHeight: 200
       },
     profile: {
-        padding: 10,
+        padding: 7,
         borderBottomWidth: 1,
         borderBottomColor: '#ccc',
       },
