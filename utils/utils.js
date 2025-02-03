@@ -28,7 +28,7 @@ export function getDateTime(day, option) {
     if (option === 'ko') {
         return `${_day[0]}년 ${_day[1]}월 ${_day[2]}일 ${_day[3]}:${_day[4]}:${_day[5]}`;
     } else {
-        return `${_day[0]}-${_day[1]}-${_day[2]} ${_day[3]}:${_day[4]}:${_day[5]}`;
+        return `${_day[0]}.${_day[1]}.${_day[2]} ${_day[3]}:${_day[4]}:${_day[5]}`;
     }
 }
 
@@ -54,4 +54,33 @@ export function getKoreanTime() {
     console.log('한국 시간의 시간 (hour): ', koreanTime.hour());
 
     return koreanTime;
+}
+
+export function getTodayDateTime(option) {
+    let date = getKoreanTime();
+    date = date.add(1, 'day');
+    
+    const year = date.year();
+    const month = String(date.month() + 1).padStart(2, '0');
+    const day = String(date.date()).padStart(2, '0');
+
+    if (option === 'ko') {
+        return `${year}년 ${month}월 ${day}일 0시 0분 0초`
+    } else {
+        return `${year}.${month}.${day} 00:00:00`
+    }
+}
+
+export function addDays2Tomorrow(banDays, option) {
+    let date = getKoreanTime();
+    date = date.add(Number(banDays)+1, 'day');
+    
+    const year = date.year();
+    const month = String(date.month() + 1).padStart(2, '0');
+    const day = String(date.date()).padStart(2, '0');
+
+    if (option === '.')
+        return `${year}.${month}.${day}`;
+
+    return `${year}-${month}-${day}`;
 }
