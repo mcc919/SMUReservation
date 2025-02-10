@@ -15,7 +15,7 @@ import UserContext from "../context/UserContext";
 import ReservationContext from "../context/ReservationContext";
 
 import { apiRequest } from "../utils/api";
-import { getDateTime, getTodayDateTime, addDays2Tomorrow } from "../utils/utils";
+import { getDateTime, getTodayDateTime, addDays2Tomorrow, getReservationDay } from "../utils/utils";
 
 import { styles } from "../constants/ProfileScreenStyles"
 
@@ -25,6 +25,7 @@ export default function ProfileScreen() {
 
     const [today, setToday] = useState("");
 
+    const [userLogs, setUserLogs] = useState([]);
     const [profiles, setProfiles] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -54,7 +55,7 @@ export default function ProfileScreen() {
         ],
         BAN_STATUS: {
             banned: { value: "unban_account", label: "🔓 정지 해제" },
-            active: { value: "ban_account", label: "⛔ 페널티 부여" }
+            active: { value: "ban_account", label: "⛔ 계정 정지(페널티 부여)" }
         }
     };
 
@@ -79,6 +80,28 @@ export default function ProfileScreen() {
           }
     }
 
+    const loadUserLogs = async () => {
+        try {
+            const response = await apiRequest(`/user/logs/${user.user_id}`);
+            const result = await response.json();
+            if (!response.ok) {
+              return (
+                Alert.alert('유저 정보 불러오기 실패', result.message, [{
+                  text: '확인',
+                  onPress: () => console.log('onpressed')
+                }])
+              )
+            } else {
+              console.log('유저 로그: :::', result);
+              setUserLogs(result);
+              return;
+            }
+        } catch (e) {
+            console.log('error', e);
+        }
+    }
+    
+
     const loadProfiles = async () => {
         setIsLoading(true);
         try {
@@ -102,7 +125,7 @@ export default function ProfileScreen() {
           setIsLoading(false);
         }
     }
-      const handleBanConfirm = async () => {
+    const handleBanConfirm = async () => {
         if (!banDays || isNaN(banDays) || banDays <= 0) {
             Alert.alert("오류", "올바른 정지 기간을 입력하세요.");
             return;
@@ -111,9 +134,9 @@ export default function ProfileScreen() {
             Alert.alert("오류", "정지 사유를 입력하세요.");
             return;
         }
-    
+        console.log('adminid: ', user.user_id, 'userId: ', targetProfile.user_id, 'bandays: ', unbanAt, 'reason: ', banReason.trim());
         try {
-            const response = await apiRequest('/user/ban/', {
+            const response = await apiRequest('/user/ban', {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -121,16 +144,17 @@ export default function ProfileScreen() {
                 body: JSON.stringify({
                     adminId: user.user_id,
                     userId: targetProfile.user_id,
-                    banDays: unbanAt,
+                    unbanAt: unbanAt,
                     reason: banReason.trim(),
                 }),
             });
             const result = await response.json();
             if (!response.ok) {
-                Alert.alert("오류", result.message);    
-            } else {
-                Alert.alert("페널티 부여", result.message);
+                Alert.alert("오류", result.message);
+                return;
             }
+            Alert.alert("페널티 부여", result.message);
+            
             setBanModalVisible(false);
             setBanDays("");
             setBanReason("");
@@ -175,35 +199,71 @@ export default function ProfileScreen() {
                     Alert.alert("알림", result.message);
                     break;
                 case "deactivate_account":
-                    // 계정 비활성화 API 호출 예시
-                    await apiRequest(`/user/deactivate/${profile.user_id}`, { method: "POST" });
-                    Alert.alert("비활성화", `${profile.username_kor}의 계정을 비활성화했습니다.`);
+                    response = await apiRequest('/user/deactivate', {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            userId: profile.user_id,
+                            adminId: user.user_id,
+                        })
+                    });
+                    result = await response.json();
+                    Alert.alert("알림", result.message);
                     break;
                 case "promote_to_admin":
-                    // 관리자로 승격 API 호출 예시
-                    await apiRequest(`/user/promote/${profile.user_id}`, { method: "POST" });
-                    Alert.alert("승격", `${profile.username_kor}을 관리자로 승격했습니다.`);
+                    response = await apiRequest('/user/promote', {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            userId: profile.user_id,
+                            adminId: user.user_id,
+                        })
+                    });
+                    result = await response.json();
+                    Alert.alert("알림", result.message);
                     break;
                 case "remove_admin_rights":
-                    // 관리자 권한 박탈 API 호출 예시
-                    await apiRequest(`/user/demote/${profile.user_id}`, { method: "POST" });
-                    Alert.alert("권한 박탈", `${profile.username_kor}의 관리자 권한을 박탈했습니다.`);
+                    response = await apiRequest('/user/demote', {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            userId: profile.user_id,
+                            adminId: user.user_id,
+                        })
+                    });
+                    result = await response.json();
+                    Alert.alert("알림", result.message);
                     break;
                 case "ban_account":
                     openBanModal(profile);
                     break;
                 case "unban_account":
-                    // 정지 해제 API 호출 예시
-                    await apiRequest(`/user/unban/${profile.user_id}`, { method: "POST" });
-                    Alert.alert("정지 해제", `${profile.username_kor}의 정지를 해제했습니다.`);
+                    response = await apiRequest('/user/unban', {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            userId: profile.user_id,
+                            adminId: user.user_id,
+                        })
+                    });
+                    result = await response.json();
+                    Alert.alert("알림", result.message);
                     break;
                 default:
                     console.log("정의되지 않은 액션입니다.");
             }
-            // 작업 후 프로필 새로고침 필요 시 재로딩
             if (user.role === "admin") {
                 loadProfiles();
-            }
+                loadUserInfo();
+            }   
         } catch (error) {
             console.log("액션 수행 중 오류:", error);
             Alert.alert("오류", "작업 수행 중 문제가 발생했습니다.");
@@ -213,6 +273,7 @@ export default function ProfileScreen() {
     useFocusEffect(
         React.useCallback(() => {
             loadUserInfo();
+            loadUserLogs();
             setBanModalVisible(false);
             setBanDays('');
             setUnbanAtText('');
@@ -229,7 +290,7 @@ export default function ProfileScreen() {
     }, [user])
 
     useEffect(() => {
-        setUnbanAt(addDays2Tomorrow(banDays) + `-${settings.RESERVATION_OPEN_HOUR}-00-00`);
+        setUnbanAt(addDays2Tomorrow(banDays-1) + `-${settings.RESERVATION_OPEN_HOUR-1}-59-00`);
     }, [banDays])
 
     useEffect(() => {
@@ -317,23 +378,21 @@ export default function ProfileScreen() {
                         <View style={styles.modalContainer}>
                             <Text style={styles.modalTitle}>⛔ 계정 정지</Text>
                             
-                            <Text style={styles.modalReasonInputLabel}>정지 기간 (일)</Text>
+                            <Text style={styles.modalReasonInputLabel}>정지 기간 (일)</Text>{
+                                banDays ? (
+                                    <>
+                                        <Text style={{...styles.helpText, marginBottom: 10}}>{getDateTime(getReservationDay(settings.RESERVATION_OPEN_HOUR)+`-${settings.RESERVATION_OPEN_HOUR-1}-59-00`)} ~ {unbanAtText}</Text>
+                                        {/* <Text style={styles.helpText}>(남은 기간: {banDays}일)</Text> */}
+                                    </>
+                                ) : null
+                            }
                             <TextInput
                                 style={styles.modalReasonInput}
                                 placeholder="예: 7"
                                 keyboardType="numeric"
                                 value={banDays}
                                 onChangeText={setBanDays}
-                            />{
-                                banDays ? (
-                                    <>
-                                        <Text style={styles.profileText}>{today} ~ {unbanAtText}</Text>
-                                        <Text style={styles.helpText}>(남은 기간: {banDays}일)</Text>
-                                    </>
-                                ) : null
-                            }
-                            
-                            
+                            />
                             <Text style={styles.modalReasonInputLabel}>정지 사유</Text>
                             <TextInput
                                 style={[styles.modalReasonInput, styles.textArea]}
@@ -369,6 +428,14 @@ export default function ProfileScreen() {
                     <Text style={styles.myProfileText}>
                         권한: <Text style={styles.highlightText}>{user.role === 'user' ? '학생' : '관리자'}</Text>
                     </Text>
+                    <Text style={styles.myProfileText}>
+                        상태: <Text style={styles.highlightText}>{user.status === 'active' ? '활성화됨' :
+                                                                user.status === 'inactive' ? '비활성화됨' : '정지됨'}</Text>
+                    </Text>{
+                        user.status !== 'banned' ? (
+                            <Text>{userLogs}</Text>
+                        ) : null
+                    }
                     <Text style={styles.myProfileText}>{user.email}</Text>
                     <View style={styles.todayReservedTimeContainer}>
                         <Text style={styles.myProfileText}>

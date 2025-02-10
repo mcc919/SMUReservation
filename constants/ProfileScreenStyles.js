@@ -56,7 +56,7 @@ export const styles = StyleSheet.create({
     menuOptionsStyle: {
         marginLeft: 130,
         marginTop: -30,
-        width: 150,
+        width: 170,
         borderWidth: 1,
         backgroundColor: "white",
         elevation: 5,
@@ -127,6 +127,7 @@ export const styles = StyleSheet.create({
     modalReasonInputLabel: {
         fontSize: 14,
         fontWeight: "600",
+        marginTop: 10,
         marginBottom: 5,
         color: "#666",
     },

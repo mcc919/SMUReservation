@@ -9,6 +9,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { UserProvider } from './context/UserContext';
 import { ReservationProvider } from './context/ReservationContext';
 import { setGlobalDispatch, apiRequest } from './utils/api';
+import { API_URL } from '@env'
 import { getReservationDay } from './utils/utils';
 
 import styles from './constants/styles';
@@ -25,7 +26,7 @@ function AppContent() {
 
   useEffect(() => {
     const restoreToken = async () => {
-      
+      console.log('서버 url: ', API_URL);
       const response = await apiRequest('/validateToken', {});
       if (!response.ok) {
         dispatch({ type: 'SIGN_OUT' });
