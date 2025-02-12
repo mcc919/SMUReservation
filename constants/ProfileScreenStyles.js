@@ -6,7 +6,7 @@ const scrollviewMaxHeight = 400;
 export const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingHorizontal: 15,
+        paddingHorizontal: 10,
     },
     myprofileContainer: {
         padding: 20,
@@ -77,13 +77,29 @@ export const styles = StyleSheet.create({
         maxHeight: scrollviewMaxHeight
       },
     profile: {
-        padding: 7,
+        padding: 10,
+        marginVertical: 3,
         borderBottomWidth: 1,
         borderBottomColor: '#ccc',
+        textAlign: 'center',
     },
     profileText: {
         fontSize: 14,
         paddingBottom: 3
+    },
+    deactivatedProfile: {
+        backgroundColor: SMU_COLORS.SMLightgray,
+        borderRadius: 5,
+        borderWidth: 1,
+        borderRadius: 8,
+        backgroundColor: '#e2e3e5',  // 연한 회색 배경
+        borderColor: '#d6d8db',  // 더 연한 회색 테두리
+        //opacity: 0.6,
+    },bannedProfile: {
+        backgroundColor: '#f8d7da',  // 연한 붉은색 배경
+        borderColor: '#f5c6cb',  // 더 연한 붉은색 테두리
+        borderWidth: 1,
+        borderRadius: 8,
     },
     userTag: {
         fontSize: 12,

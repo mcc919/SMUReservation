@@ -36,26 +36,36 @@ export default function ProfileScreen() {
     const [banReason, setBanReason] = useState("");
     const [targetProfile, setTargetProfile] = useState(null);
 
+    const [isDeactivateModalVisible, setDeactivateModalVisible] = useState(false);
+    const [deactivateReason, setDeactivateReason] = useState("");
+    const [targetDeactivateProfile, setTargetDeactivateProfile] = useState(null);
+
     const openBanModal = (profile) => {
         setTargetProfile(profile);
         setBanModalVisible(true);
     };
+
+    const openDeactivateModal = (profile) => {
+        setTargetDeactivateProfile(profile);
+        setDeactivateModalVisible(true);
+    };    
 
     const ProfileActions = {
         UNAPPROVED: [
             { value: "accept_request", label: "✅ 요청 수락" },
             { value: "delete_request", label: "🗑️ 요청 삭제" }
         ],
-        USER: [
-            { value: "deactivate_account", label: "🚫 비활성화" },
-            { value: "promote_to_admin", label: "🔼 관리자로 승격" },
-        ],
+        USER: {
+            active: { value: "deactivate_account", label: "🚫 비활성화" },
+            inactive: { value: "activate_account", label: "✅ 활성화" },
+            default: { value: "promote_to_admin", label: "🔼 관리자로 승격" },
+        },
         ADMIN: [
             { value: "remove_admin_rights", label: "🔽 관리자 권한 박탈" }
         ],
         BAN_STATUS: {
             banned: { value: "unban_account", label: "🔓 정지 해제" },
-            active: { value: "ban_account", label: "⛔ 계정 정지(페널티 부여)" }
+            unbanned: { value: "ban_account", label: "⛔ 계정 정지(페널티 부여)" }
         }
     };
 
@@ -164,6 +174,40 @@ export default function ProfileScreen() {
         }
     };
 
+    const handleDeactivateConfirm = async () => {
+        if (!deactivateReason.trim()) {
+            Alert.alert("오류", "비활성화 사유를 입력하세요.");
+            return;
+        }
+        try {
+            const response = await apiRequest('/user/deactivate', {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId: targetDeactivateProfile.user_id,
+                    adminId: user.user_id,
+                    reason: deactivateReason.trim(),
+                }),
+            });
+            const result = await response.json();
+            if (!response.ok) {
+                Alert.alert("오류", result.message);
+                return;
+            }
+            Alert.alert("비활성화 완료", result.message);
+            
+            setDeactivateModalVisible(false);
+            setDeactivateReason("");
+            loadProfiles();  // 목록 갱신
+        } catch (error) {
+            console.error("비활성화 요청 실패:", error);
+            Alert.alert("오류", "비활성화 요청 처리 중 문제가 발생했습니다.");
+        }
+    };
+    
+
     const handleMenuSelect = async (actionValue, profile) => {
         console.log(`선택된 액션: ${actionValue} / 대상: ${profile.username_kor}`);
         let response = null;
@@ -199,18 +243,7 @@ export default function ProfileScreen() {
                     Alert.alert("알림", result.message);
                     break;
                 case "deactivate_account":
-                    response = await apiRequest('/user/deactivate', {
-                        method: "POST",
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            userId: profile.user_id,
-                            adminId: user.user_id,
-                        })
-                    });
-                    result = await response.json();
-                    Alert.alert("알림", result.message);
+                    openDeactivateModal(profile);
                     break;
                 case "promote_to_admin":
                     response = await apiRequest('/user/promote', {
@@ -302,12 +335,16 @@ export default function ProfileScreen() {
         <View key={profile.user_id}>
             <Menu onSelect={(actionValue) => handleMenuSelect(actionValue, profile)}>
                 <MenuTrigger>
-                    <View style={styles.profile}>
+                    <View style={[
+                        styles.profile,
+                        profile.status === "inactive" && styles.deactivatedProfile,
+                        profile.status === "banned" && styles.bannedProfile
+                    ]}>
                         <View style={{flexDirection: 'row', alignItems: 'center'}}>{
                             profile.status !== "unapproved" ? (
                                 <Text style={profile.role === 'admin' ? styles.adminTag : styles.userTag}>{profile.role === 'admin' ? '관리자' : '학생'}</Text>
                             ) : null}    
-                            <Text style={{...styles.profileText, marginTop: 3}}>{profile.username_kor}</Text>
+                            <Text style={{...styles.profileText, marginTop: 3}}>{profile.username_kor}{profile.status==='inactive'?' (비활성화됨)':profile.status==='banned'?' (일시정지됨)':null}</Text>
                         </View>            
                         <Text style={{...styles.profileText, marginTop: 5}}>{profile.department} {profile.grade}학년 {profile.enrollment_status}중</Text>
                         <Text style={styles.profileText}>{profile.email}</Text>{
@@ -341,16 +378,26 @@ export default function ProfileScreen() {
                     {profile.status === "active" &&
                         <MenuOption 
                             key={profile.status} 
-                            value={ProfileActions.BAN_STATUS["active"].value} 
-                            text={ProfileActions.BAN_STATUS["active"].label} 
+                            value={ProfileActions.USER["active"].value} 
+                            text={ProfileActions.USER["active"].label} 
+                        />
+                    }
+
+                    {profile.status === "inactive" &&
+                        <MenuOption 
+                            key={profile.status} 
+                            value={ProfileActions.USER["inactive"].value} 
+                            text={ProfileActions.USER["inactive"].label} 
                         />
                     }
 
                     {/* 승인된 사용자일 경우 */}
                     {profile.status !== "unapproved" && profile.role === "user" &&
-                        ProfileActions.USER.map(action => (
-                            <MenuOption key={action.value} value={action.value} text={action.label} />
-                        ))
+                        <MenuOption
+                            key={"default"}
+                            value={ProfileActions.USER["default"].value}
+                            text={ProfileActions.USER["default"].label}
+                        />
                     }
 
 
@@ -368,6 +415,39 @@ export default function ProfileScreen() {
 
     return (
         <>
+            {/* 비활성화 입력 모달 */}
+            <Modal visible={isDeactivateModalVisible} transparent={true} animationType="slide">
+                <KeyboardAvoidingView 
+                    behavior={Platform.OS === "ios" ? "padding" : "height"} 
+                    style={styles.modalOverlay}
+                >
+                    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                        <View style={styles.modalContainer}>
+                            <Text style={styles.modalTitle}>🚫 계정 비활성화</Text>
+                            <Text style={styles.modalReasonInputLabel}>비활성화 사유</Text>
+                            <TextInput
+                                style={[styles.modalReasonInput, styles.textArea]}
+                                placeholder="비활성화 사유를 입력하세요."
+                                multiline
+                                value={deactivateReason}
+                                onChangeText={setDeactivateReason}
+                            />
+                            <View style={styles.buttonContainer}>
+                                <TouchableOpacity onPress={() => setDeactivateModalVisible(false)} style={[styles.button, styles.cancelButton]}>
+                                    <Text style={styles.buttonText}>취소</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={async () => {
+                                    await handleDeactivateConfirm();
+                                    loadUserInfo();
+                                }} style={[styles.button, styles.confirmButton]}>
+                                    <Text style={styles.buttonText}>확인</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </TouchableWithoutFeedback>
+                </KeyboardAvoidingView>
+            </Modal>
+
             {/* 정지 입력 모달 */}
             <Modal visible={isBanModalVisible} transparent={true} animationType="slide">
                 <KeyboardAvoidingView 
