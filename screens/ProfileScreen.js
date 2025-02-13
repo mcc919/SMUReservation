@@ -215,80 +215,136 @@ export default function ProfileScreen() {
         try {
             switch (actionValue) {
                 case "accept_request":
-                    response = await apiRequest('/user/accept', {
-                        method: "POST",
-                        headers: {
-                            'Content-Type': 'application/json',
+                    console.log('프로필!!:', profile);
+                    Alert.alert('⚠️', `'${profile.username_kor?profile.username_kor:profile.username_eng}'님의 가입을 승인하시겠습니까?`, [
+                        {
+                            text: '취소',
+                            onPress: () => {}
                         },
-                        body: JSON.stringify({
-                            userId: profile.user_id,
-                            adminId: user.user_id,
-                        })
-                    });
-                    result = await response.json();
-                    Alert.alert("알림", result.message);
+                        {
+                            text: '확인',
+                            onPress: async () => {
+                                response = await apiRequest('/user/accept', {
+                                    method: "POST",
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                        userId: profile.user_id,
+                                        adminId: user.user_id,
+                                    })
+                                });
+                                result = await response.json();
+                                Alert.alert("알림", result.message);
+                            }
+                        }
+                    ])
                     break;
                 case "delete_request":
-                    response = await apiRequest('/user/delete', {
-                        method: "DELETE",
-                        headers: {
-                            'Content-Type': 'application/json',
+                    Alert.alert('⚠️', `'${profile.username_kor?profile.username_kor:profile.username_eng}'님의 가입 요청을 삭제하시겠습니까?`, [
+                        {
+                            text: '취소',
+                            onPress: () => {}
                         },
-                        body: JSON.stringify({
-                            userId: profile.user_id,
-                            adminId: user.user_id,
-                        })
-                    });
-                    result = await response.json();
-                    Alert.alert("알림", result.message);
+                        {
+                            text: '확인',
+                            onPress: async () => {
+                                response = await apiRequest('/user/delete', {
+                                    method: "DELETE",
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                        userId: profile.user_id,
+                                        adminId: user.user_id,
+                                    })
+                                });
+                                result = await response.json();
+                                Alert.alert("알림", result.message);
+                            }
+                        }
+                    ])
                     break;
                 case "deactivate_account":
                     openDeactivateModal(profile);
                     break;
                 case "promote_to_admin":
-                    response = await apiRequest('/user/promote', {
-                        method: "POST",
-                        headers: {
-                            'Content-Type': 'application/json',
+                    Alert.alert('⚠️', `'${profile.username_kor?profile.username_kor:profile.username_eng}'님에게 관리자 권한을 부여하시겠습니까?`, [
+                        {
+                            text: '취소',
+                            onPress: () => {}
                         },
-                        body: JSON.stringify({
-                            userId: profile.user_id,
-                            adminId: user.user_id,
-                        })
-                    });
-                    result = await response.json();
-                    Alert.alert("알림", result.message);
+                        {
+                            text: '확인',
+                            onPress: async () => {
+                                response = await apiRequest('/user/promote', {
+                                    method: "POST",
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                        userId: profile.user_id,
+                                        adminId: user.user_id,
+                                    })
+                                });
+                                result = await response.json();
+                                Alert.alert("알림", result.message);
+                            }
+                        }
+                    ])
                     break;
                 case "remove_admin_rights":
-                    response = await apiRequest('/user/demote', {
-                        method: "POST",
-                        headers: {
-                            'Content-Type': 'application/json',
+                    Alert.alert('⚠️', `'${profile.username_kor?profile.username_kor:profile.username_eng}'님의 관리자 권한을 박탈하시겠습니까?`, [
+                        {
+                            text: '취소',
+                            onPress: () => {}
                         },
-                        body: JSON.stringify({
-                            userId: profile.user_id,
-                            adminId: user.user_id,
-                        })
-                    });
-                    result = await response.json();
-                    Alert.alert("알림", result.message);
+                        {
+                            text: '확인',
+                            onPress: async () => {
+                                response = await apiRequest('/user/demote', {
+                                    method: "POST",
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                        userId: profile.user_id,
+                                        adminId: user.user_id,
+                                    })
+                                });
+                                result = await response.json();
+                                Alert.alert("알림", result.message);
+                            }
+                        }
+                    ])
                     break;
                 case "ban_account":
                     openBanModal(profile);
                     break;
                 case "unban_account":
-                    response = await apiRequest('/user/unban', {
-                        method: "POST",
-                        headers: {
-                            'Content-Type': 'application/json',
+                    Alert.alert('⚠️', `'${profile.username_kor?profile.username_kor:profile.username_eng}'님의 사용정지 조치를 해제하시겠습니까?`, [
+                        {
+                            text: '취소',
+                            onPress: () => {}
                         },
-                        body: JSON.stringify({
-                            userId: profile.user_id,
-                            adminId: user.user_id,
-                        })
-                    });
-                    result = await response.json();
-                    Alert.alert("알림", result.message);
+                        {
+                            text: '확인',
+                            onPress: async () => {
+                                response = await apiRequest('/user/unban', {
+                                    method: "POST",
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                        userId: profile.user_id,
+                                        adminId: user.user_id,
+                                    })
+                                });
+                                result = await response.json();
+                                Alert.alert("알림", result.message);
+                            }
+                        }
+                    ])
                     break;
                 default:
                     console.log("정의되지 않은 액션입니다.");
